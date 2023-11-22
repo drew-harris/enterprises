@@ -1,3 +1,6 @@
+const safeScript =
+  config.env.NODE_ENV === "development" ? liveReloadScript() : "";
+
 export const BaseHtml = ({ children }: any) => `
 <!DOCTYPE html>
 <html lang="en">
