@@ -4,13 +4,11 @@
 ARG BUN_VERSION=1.0.0
 FROM oven/bun:${BUN_VERSION} as base
 
-
 # Bun app lives here
 WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
-
 
 # Throw-away build stage to reduce size of final image
 FROM base as build

@@ -1,4 +1,4 @@
-export const BaseHtml = ({ children }: JSX.BaseIntrinsicElements) => `
+export const BaseHtml = ({ children }: any) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
