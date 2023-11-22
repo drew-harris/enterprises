@@ -3,9 +3,10 @@
   "module": "src/index.tsx",
   "type": "module",
   "scripts": {
+    "reload": "bun run scripts/reloadServer.ts",
     "db:push": "bunx drizzle-kit push:mysql",
     "db:studio": "bunx drizzle-kit studio",
-    "dev": "concurrently \"bun run --watch src/index.tsx\" \"bun run tw:dev\"",
+    "dev": "concurrently \"bun run --watch src/index.tsx\" \"bun run tw:dev\" \"bun run reload\"",
     "scrape": "bun ./src/scrape.ts",
     "tw": "bunx tailwindcss -m -i ./src/styles.css -o ./public/styles.css",
     "tw:dev": "bunx tailwindcss -m -i ./src/styles.css -o ./public/styles.css --watch"
@@ -21,8 +22,11 @@
   },
   "dependencies": {
     "@elysiajs/html": "^",
+    "@elysiajs/static": "^0.7.1",
+    "@t3-oss/env-core": "^0.7.1",
     "drizzle-orm": "^0.27.2",
     "elysia": "^",
-    "mysql2": "^3.5.2"
+    "mysql2": "^3.5.2",
+    "zod": "^3.22.4"
   }
 }
