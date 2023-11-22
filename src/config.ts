@@ -5,6 +5,7 @@ export const config = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "production"]).default("production"),
+    LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   },
 
   runtimeEnv: process.env,

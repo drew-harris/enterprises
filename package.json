@@ -21,12 +21,16 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@bogeychan/elysia-logger": "^0.0.13",
     "@elysiajs/html": "^",
     "@elysiajs/static": "^0.7.1",
     "@t3-oss/env-core": "^0.7.1",
+    "@tlscipher/holt": "^1.1.2",
     "drizzle-orm": "^0.27.2",
     "elysia": "^",
     "mysql2": "^3.5.2",
+    "pino": "^8.16.2",
+    "pino-pretty": "^10.2.3",
     "zod": "^3.22.4"
   }
 }
