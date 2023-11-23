@@ -1,8 +1,7 @@
+import { html } from "@elysiajs/html";
 import staticPlugin from "@elysiajs/static";
 import { Elysia } from "elysia";
 import { config } from "./config";
-import { ctx } from "./context";
-import { BaseHtml } from "./components/BaseHtml";
 
 const app = new Elysia()
   .use(
@@ -10,7 +9,7 @@ const app = new Elysia()
       prefix: "",
     })
   )
-  .use(ctx)
+  .use(html())
   .onStart(() => {
     if (config.NODE_ENV === "development") {
       void fetch("http://localhost:3001/restart");
@@ -22,15 +21,8 @@ const app = new Elysia()
     return <div></div>;
   })
 
-  .get("/", async ({ html }) => {
-    return html(() => (
-      <BaseHtml>
-        <div class="bg-purple-400 p-4 text-xl font-bold">
-          Drewh Cloud Enterprises
-        </div>
-        <div class="p-8">Welcome to the new AWS</div>
-      </BaseHtml>
-    ));
+  .get("/", async () => {
+    return <div hx-get="/hx/gesli">Test</div>;
   })
 
   .listen(3000);

@@ -1,10 +1,10 @@
 import { logger } from "@bogeychan/elysia-logger";
 import { HoltLogger } from "@tlscipher/holt";
-import { bethStack } from "beth-stack/elysia";
 import { Elysia } from "elysia";
 import pretty from "pino-pretty";
 import { config } from "./config";
 import { db } from "./db";
+import { html } from "@elysiajs/html";
 
 const stream = pretty({
   colorize: true,
@@ -24,7 +24,7 @@ export const ctx = new Elysia({
       autoLogging: false,
     })
   )
-  .use(bethStack())
+  .use(html())
   .use(
     // @ts-ignore
     config.NODE_ENV === "development" ? new HoltLogger().getLogger() : (a) => a

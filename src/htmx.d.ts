@@ -1,4 +1,5 @@
-import type { App } from ".";
+/// <reference types="@kitajs/html/htmx.d.ts" />
+
 type RoutesByType<
   Schema extends Record<string, any>, // Ensure keys are strings
   Type extends "get" | "post" | "put" | "delete" | "patch"
@@ -37,7 +38,7 @@ type DoesntStartWithApi<T extends string> = T extends `${"/hx"}${infer Rest}`
   ? never
   : T;
 
-type Schema = App["schema"];
+type Schema = import("./index.tsx").App["schema"];
 
 type PostRoutes = RoutesByType<Schema, "post">;
 type GetRoutes = RoutesByType<Schema, "get">;
@@ -52,6 +53,6 @@ declare namespace JSX {
     ["hx-put"]?: StartsWithApi<PutRoutes>;
     ["hx-delete"]?: StartsWithApi<DeleteRoutes>;
     ["hx-patch"]?: StartsWithApi<PatchRoutes>;
-    peepee: string;
+    _?: string;
   }
 }
