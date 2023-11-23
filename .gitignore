@@ -171,3 +171,5 @@ dist
 .pnp.\*
 
 public/styles.css
+
+beth-cache.sqlite

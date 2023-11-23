@@ -8,6 +8,9 @@ export const config = createEnv({
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   },
 
-  runtimeEnv: process.env,
+  runtimeEnv: {
+    ...process.env,
+    NODE_ENV: process.env.NODE_ENV ?? "production",
+  },
   emptyStringAsUndefined: true,
 });

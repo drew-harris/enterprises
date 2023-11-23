@@ -52,6 +52,6 @@ declare namespace JSX {
     ["hx-put"]?: StartsWithApi<PutRoutes>;
     ["hx-delete"]?: StartsWithApi<DeleteRoutes>;
     ["hx-patch"]?: StartsWithApi<PatchRoutes>;
-    _?: string;
+    peepee: string;
   }
 }
