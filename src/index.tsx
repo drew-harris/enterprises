@@ -1,8 +1,9 @@
-import { html } from "@elysiajs/html";
 import staticPlugin from "@elysiajs/static";
 import { Elysia } from "elysia";
-import { config } from "./config";
 import { BaseHtml } from "./components/BaseHtml";
+import { Button } from "./components/shared/Button";
+import { config } from "./config";
+import { ctx } from "./context";
 
 const app = new Elysia()
   .use(
@@ -10,7 +11,7 @@ const app = new Elysia()
       prefix: "",
     })
   )
-  .use(html())
+  .use(ctx)
   .onStart(() => {
     if (config.NODE_ENV === "development") {
       void fetch("http://localhost:3001/restart");
@@ -22,12 +23,10 @@ const app = new Elysia()
     return (
       <BaseHtml>
         <div class="bg-purple-400/50 p-3 text-xl font-bold text-center">
-          Drewh Cloud Enterprises
+          Drewh HTMX Starter
         </div>
         <div class="flex justify-center pt-8">
-          <button class="bg-purple-800/50 p-3 font-bold rounded-lg">
-            Sign In
-          </button>
+          <Button>Sign Up</Button>
         </div>
       </BaseHtml>
     );
