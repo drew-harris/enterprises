@@ -9,7 +9,7 @@ const app = new Elysia()
   .use(
     staticPlugin({
       prefix: "",
-    })
+    }),
   )
   .use(ctx)
   .onStart(() => {
@@ -22,8 +22,8 @@ const app = new Elysia()
   .get("/", async () => {
     return (
       <BaseHtml>
-        <div class="bg-purple-400/50 p-3 text-xl font-bold text-center">
-          Drewh HTMX Starter
+        <div class="border-b border-b-purple-400/40 bg-purple-400/50 p-3 text-center text-xl font-bold shadow shadow-purple-950">
+          Drew's HTMX Starter
         </div>
         <div class="flex justify-center pt-8">
           <Button>Sign Up</Button>
@@ -35,7 +35,7 @@ const app = new Elysia()
   .listen(3000);
 
 console.log(
-  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
+  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`,
 );
 
 export type App = typeof app;
