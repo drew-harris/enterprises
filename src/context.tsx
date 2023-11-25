@@ -5,6 +5,7 @@ import pretty from "pino-pretty";
 import { config } from "./config";
 import { db } from "./db";
 import { html } from "@elysiajs/html";
+import { auth } from "./auth";
 
 const stream = pretty({
   colorize: true,
@@ -15,19 +16,28 @@ export const ctx = new Elysia({
 })
   .decorate("db", db)
   .decorate("config", config)
-  // .decorate("auth", auth)
+  .decorate("auth", auth)
   .use(
     // @ts-ignore
     logger({
       level: config.LOG_LEVEL,
       stream: config.NODE_ENV === "development" ? stream : undefined,
       autoLogging: false,
-    })
+    }),
   )
+  .derive(async (ctx) => {
+    if (!ctx?.request?.url) {
+      return { session: null };
+    }
+    const authRequest = auth.handleRequest(ctx);
+    const session = await authRequest.validate();
+    return { session };
+  })
+
   .use(html())
   .use(
     // @ts-ignore
-    config.NODE_ENV === "development" ? new HoltLogger().getLogger() : (a) => a
+    config.NODE_ENV === "development" ? new HoltLogger().getLogger() : (a) => a,
   )
   .onStart(({ log }) => {
     if (log && config.NODE_ENV === "production") {

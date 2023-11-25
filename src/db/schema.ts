@@ -5,7 +5,9 @@ export const user = mysqlTable("users", {
     length: 15, // change this when using custom user ids
   }).primaryKey(),
 
-  // other user attributes
+  username: varchar("username", {
+    length: 127,
+  }).notNull(),
 });
 
 export const key = mysqlTable("user_key", {
