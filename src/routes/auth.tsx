@@ -27,6 +27,8 @@ export const authRoutes = new Elysia()
       const { getExistingUser, githubUser, createUser } =
         await githubAuth.validateCallback(query.code);
 
+      console.log("Validated callback");
+
       const getUser = async () => {
         const existingUser = await getExistingUser();
         if (existingUser) return existingUser;
@@ -39,14 +41,20 @@ export const authRoutes = new Elysia()
       };
 
       const user = await getUser();
+
+      console.log("Got user");
+
       const session = await auth.createSession({
         userId: user.userId,
         attributes: {},
       });
+
+      console.log("Created session");
       const sessionCookie = auth.createSessionCookie(session);
       set.headers["Set-Cookie"] = sessionCookie.serialize();
       set.redirect = "/";
     } catch (error) {
       console.error(error);
+      return <div>Something went wrong</div>;
     }
   });
