@@ -1,11 +1,13 @@
 import { mysqlTable, bigint, varchar } from "drizzle-orm/mysql-core";
 
-export const user = mysqlTable("auth_user", {
+export const user = mysqlTable("users", {
   id: varchar("id", {
     length: 15, // change this when using custom user ids
   }).primaryKey(),
 
-  // other user attributes
+  username: varchar("username", {
+    length: 127,
+  }).notNull(),
 });
 
 export const key = mysqlTable("user_key", {
@@ -22,7 +24,7 @@ export const key = mysqlTable("user_key", {
   }),
 });
 
-export const session = mysqlTable("user_session", {
+export const session = mysqlTable("sessions", {
   id: varchar("id", {
     length: 128,
   }).primaryKey(),
