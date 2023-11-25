@@ -38,7 +38,7 @@ type DoesntStartWithApi<T extends string> = T extends `${"/hx"}${infer Rest}`
   ? never
   : T;
 
-type Schema = import("./index.tsx").App["schema"];
+type Schema = import("../index.tsx").App["schema"];
 
 type PostRoutes = RoutesByType<Schema, "post">;
 type GetRoutes = RoutesByType<Schema, "get">;
