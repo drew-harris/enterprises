@@ -1,17 +1,13 @@
 import Elysia from "elysia";
 import { auth, githubAuth } from "../auth";
-import { config } from "../config";
 import { ctx } from "../context";
+import { LuciaError } from "lucia";
 
 export const authRoutes = new Elysia()
   .use(ctx)
   .get("/signin", async ({ set }) => {
     // TODO :Implement state cookie
     const [url, state] = await githubAuth.getAuthorizationUrl();
-    url.searchParams.set(
-      "redirect_uri",
-      config.GITHUB_REDIRECT_DOMAIN + "/auth/callback",
-    );
     console.log("URL!!!", url);
     set.redirect = url.toString();
     return;
@@ -21,6 +17,8 @@ export const authRoutes = new Elysia()
       set.redirect = "/";
       return;
     }
+
+    console.log("CODE: ", query.code);
 
     console.log("Test");
     try {
@@ -52,9 +50,18 @@ export const authRoutes = new Elysia()
       console.log("Created session");
       const sessionCookie = auth.createSessionCookie(session);
       set.headers["Set-Cookie"] = sessionCookie.serialize();
+
       set.redirect = "/";
     } catch (error) {
       console.error(error);
+      if (error instanceof LuciaError) {
+        console.log(error.stack);
+        console.log(error.name);
+        console.log(error.detail);
+        console.log(error.cause);
+        console.log(error.message);
+      }
+      set.status = 500;
       return <div>Something went wrong</div>;
     }
   });

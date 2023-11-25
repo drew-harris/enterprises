@@ -28,6 +28,7 @@ export const auth = lucia({
 export const githubAuth = github(auth, {
   clientId: config.GITHUB_CLIENT_ID,
   clientSecret: config.GITHUB_CLIENT_SECRET,
+  redirectUri: config.GITHUB_REDIRECT_DOMAIN + "/auth/callback",
 });
 
 export type Auth = typeof auth;
