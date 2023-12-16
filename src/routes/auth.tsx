@@ -1,7 +1,6 @@
 import Elysia from "elysia";
 import { auth, githubAuth } from "../auth";
 import { ctx } from "../context";
-import { LuciaError } from "lucia";
 
 export const authRoutes = new Elysia()
   .use(ctx)
