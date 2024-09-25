@@ -1,3 +1,10 @@
 {
   "name": "doodlebox",
+  "private": true,
+  "scripts": {
+    "dev": "bun --filter '*' dev"
+  },
+  "workspaces": [
+    "server"
+  ]
 }
