@@ -1,5 +1,5 @@
 {
-  "name": "doodlebox",
+  "name": "doodlebox-project",
   "private": true,
   "scripts": {
     "dev": "bun --filter '*' dev"

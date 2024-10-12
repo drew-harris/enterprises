@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    environment: 
+      - SITE_ADDRESS=https://doodlebox.com
+    ports:
+      - "80:80"
+      - "443:443"
+      - "2019:2019"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - caddy
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: doodlebox
+      POSTGRES_PASSWORD: doodlebox
+      POSTGRES_DB: doodlebox
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - caddy
+
+  adminer:
+    image: ghcr.io/shyim/adminerevo:latest
+    restart: always
+    ports:
+      - 8040:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    profiles:
+      - adminer
+    networks:
+      - caddy
+
+
+networks:
+  caddy:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+
