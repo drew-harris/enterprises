@@ -1,10 +1,12 @@
 {
-  "name": "doodlebox-project",
+  "name": "enterprises-project",
   "private": true,
   "scripts": {
     "dev": "bun --filter '*' dev"
   },
   "workspaces": [
-    "server"
+    "server",
+    "cli",
+    "pkg"
   ]
 }

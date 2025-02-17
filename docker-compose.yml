@@ -4,8 +4,6 @@ services:
   caddy:
     image: caddy:latest
     container_name: caddy
-    environment: 
-      - SITE_ADDRESS=https://doodlebox.com
     ports:
       - "80:80"
       - "443:443"
@@ -23,9 +21,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: doodlebox
-      POSTGRES_PASSWORD: doodlebox
-      POSTGRES_DB: doodlebox
+      POSTGRES_USER: enterprises
+      POSTGRES_PASSWORD: enterprises
+      POSTGRES_DB: enterprises
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
