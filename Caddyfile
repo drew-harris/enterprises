@@ -1,12 +1,12 @@
-{
-  admin "localhost:2019"
-}
-
 admin.{$DOMAIN} {
   reverse_proxy server:3000
 }
 
 auth.{$DOMAIN} {
+  forward_auth server:3000 {
+		uri /auth/forward
+	}
+
   respond "Working auth!"
 }
 

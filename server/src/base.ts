@@ -12,5 +12,10 @@ export const base = new Elysia().use(
       minLength: 5,
       error: "Domain Required!!",
     }),
+    DISABLE_AUTH: t.BooleanString({
+      description: "Disable all auth",
+      minLength: 5,
+      default: false,
+    }),
   }),
 );
