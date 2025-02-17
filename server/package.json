@@ -3,14 +3,15 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/jwt": "^1.1.1",
-    "drizzle-kit": "^0.25.0",
-    "drizzle-orm": "^0.34.1",
-    "elysia": "latest",
-    "postgres": "^3.4.4"
+    "@yolk-oss/elysia-env": "2.0.x",
+    "drizzle-kit": "0.25.x",
+    "drizzle-orm": "0.34.x",
+    "elysia": "1.2.x",
+    "postgres": "3.4.x"
   },
   "devDependencies": {
     "bun-types": "latest"

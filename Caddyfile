@@ -1,3 +1,15 @@
 {
-  admin "0.0.0.0:2019"
+  admin "localhost:2019"
+}
+
+admin.{$DOMAIN} {
+  reverse_proxy server:3000
+}
+
+auth.{$DOMAIN} {
+  respond "Working auth!"
+}
+
+adm.{$DOMAIN} {
+  reverse_proxy adminer:8080
 }

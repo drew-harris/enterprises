@@ -5,8 +5,6 @@
     "dev": "bun --filter '*' dev"
   },
   "workspaces": [
-    "server",
-    "cli",
-    "pkg"
+    "server"
   ]
 }

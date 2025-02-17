@@ -1,23 +1,9 @@
-import jwt from "@elysiajs/jwt";
 import { Elysia } from "elysia";
+import { base } from "./base";
 
 const app = new Elysia()
-  .get("/", () => "Hello Elysia")
-  .use(
-    jwt({
-      name: "keys",
-      secret: process.env.JWT_SECRET!,
-    }),
-  )
-  .post("/api-key", async ({ keys }) => {
-    const key = await keys.sign({
-      name: "Drew",
-    });
-
-    return {
-      key,
-    };
-  })
+  .use(base)
+  .get("/", () => "Wow this is fast")
   .listen(3000);
 
 console.log(
