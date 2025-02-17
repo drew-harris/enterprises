@@ -1,5 +1,7 @@
 services:
   server: 
+    depends_on: 
+     - postgres
     build:
       context: .
       dockerfile: dockerfiles/server.Dockerfile
