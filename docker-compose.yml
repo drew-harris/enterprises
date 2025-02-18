@@ -10,6 +10,7 @@ services:
     environment: 
       - DOMAIN=${DOMAIN:?DOMAIN must be set}
       - ROOT_KEY=${ROOT_KEY:?ROOT_KEY must be set}
+      - DATABASE_URL=postgres://enterprises:enterprises@postgres:5432/enterprises
     networks:
       - caddy
     develop:

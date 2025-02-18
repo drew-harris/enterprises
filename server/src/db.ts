@@ -1,5 +1,6 @@
 import { ExtractTablesWithRelations } from "drizzle-orm";
 import postgres from "postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 
 import { createContext } from "./context";
 import { drizzle, PostgresJsTransaction } from "drizzle-orm/postgres-js";
@@ -9,8 +10,10 @@ export type Transaction = PostgresJsTransaction<
   ExtractTablesWithRelations<Record<string, never>>
 >;
 
-const queryClient = postgres(process.env.DATABASE_URL!);
-const db = drizzle(queryClient, { logger: false });
+const queryClient = postgres(process.env.DATABASE_URL!, {
+  onnotice: () => {},
+});
+export const db = drizzle(queryClient, { logger: false });
 
 export type TxOrDb = Transaction | typeof queryClient;
 

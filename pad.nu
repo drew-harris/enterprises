@@ -1,4 +1,4 @@
 ###
 
 #@ startup
-docker compose up --watch --build
+docker compose --profile adminer up --watch --build --no-attach adminer
