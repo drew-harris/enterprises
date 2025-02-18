@@ -5,7 +5,7 @@ import { auth } from "./auth";
 const app = new Elysia()
   .use(base)
   .use(auth)
-  .get("/", () => "Wow this is fast")
+  .get("/", () => "Wow this is slow")
   .listen(3000);
 
 console.log(
