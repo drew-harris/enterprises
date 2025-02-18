@@ -7,7 +7,7 @@ import { db } from "./db";
 const app = new Elysia()
   .use(base)
   .use(auth)
-  .get("/", () => "We have migrations working")
+  .get("/", () => "One more update test")
   .listen(3000);
 
 console.log(
