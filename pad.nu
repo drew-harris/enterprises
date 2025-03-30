@@ -2,8 +2,10 @@
 
 #@ startup
 let dir = "/Users/drew/programs/enterprises"
+let pkg_dir = $dir | path join pkg
 tmux new-window -c $dir
-tmux split-window -v -c $dir
-tmux send-keys -t .0 "docker compose up" enter
-tmux send-keys -t .1 "cd pkg && bun dev" enter
+tmux split-window -v -c $pkg_dir
+tmux send-keys -t .1 "cd \"$pkg_dir\"" Enter
+tmux send-keys -t .0 "docker compose up" Enter
+tmux send-keys -t .1 "bun dev" Enter
 exit
