@@ -2,11 +2,15 @@
   "name": "enterprises",
   "module": "index.ts",
   "type": "module",
-  "bin": "dist/cli.js",
+  "bin": "dist/cli/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./cli": {
+      "import": "./dist/cli/index.js",
+      "types": "./dist/cli/index.d.ts"
     }
   },
   "types": "dist/index.d.ts",
@@ -22,5 +26,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "cmd-ts": "^0.13.0"
   }
 }

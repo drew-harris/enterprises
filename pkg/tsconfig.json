@@ -6,17 +6,21 @@
       "DOM"
     ],
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "NodeNext", // Keep ESNext for modern syntax
+    "moduleResolution": "nodenext", // Use Node.js module resolution
     "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true, // Required for Node.js ES modules
     "jsx": "react-jsx",
     "allowJs": true,
     // Bundler mode
-    "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "outDir": "dist",
     // Type generation
     "declaration": true,
     "declarationMap": true,
+    "rewriteRelativeImportExtensions": true,
+    "allowArbitraryExtensions": false,
     // Sourcemaps
     "sourceMap": true,
     // Best practices
