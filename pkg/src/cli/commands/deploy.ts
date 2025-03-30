@@ -1,4 +1,5 @@
 import { command, option, string } from "cmd-ts";
+import { getContext } from "../context.ts";
 
 const stageFlag = option({
   type: string,
@@ -12,6 +13,11 @@ export const deploy = command({
   args: { stageFlag },
 
   handler: async ({ stageFlag }) => {
-    console.log(`Deploying to ${stageFlag}`);
+    const context = getContext();
+    const response = await context.request("/storage/presigned");
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    console.log(await response.text());
   },
 });

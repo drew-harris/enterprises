@@ -1,4 +1,7 @@
 admin.{$DOMAIN} {
+  forward_auth server:3000 {
+		uri /auth/forward
+	}
   reverse_proxy server:3000
 }
 
@@ -6,10 +9,16 @@ auth.{$DOMAIN} {
   forward_auth server:3000 {
 		uri /auth/forward
 	}
-
   respond "Working auth!"
 }
 
 adm.{$DOMAIN} {
+  forward_auth server:3000 {
+		uri /auth/forward
+	}
   reverse_proxy adminer:8080
+}
+
+storage.{$DOMAIN} {
+  reverse_proxy minio:9001
 }

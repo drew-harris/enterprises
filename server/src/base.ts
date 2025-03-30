@@ -17,5 +17,15 @@ export const base = new Elysia().use(
       minLength: 5,
       default: false,
     }),
+    MINIO_ACCESS_KEY: t.String({
+      description: "Minio Access Key",
+      minLength: 5,
+      default: "minioadmin",
+    }),
+    MINIO_SECRET_KEY: t.String({
+      description: "Minio Secret Key",
+      minLength: 5,
+      default: "minioadmin",
+    }),
   }),
 );
