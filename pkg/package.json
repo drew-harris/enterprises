@@ -1,10 +1,21 @@
 {
   "name": "enterprises",
   "module": "index.ts",
-  "bin": "index.ts",
   "type": "module",
+  "bin": "dist/cli.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
-    "build": "bun run build.ts"
+    "build": "bun run build.ts",
+    "dev": "bun tsc --watch"
   },
   "devDependencies": {
     "@types/bun": "latest"

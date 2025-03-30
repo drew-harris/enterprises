@@ -1,4 +1,3 @@
-await Bun.build({
-  entrypoints: ["./src/index.ts"],
-  outdir: "./dist",
-});
+import { $ } from "bun";
+
+await $`bun tsc`;
