@@ -1,4 +1,4 @@
-FROM oven/bun:1.2.2 as base
+FROM oven/bun:1.2.8 as base
 
 WORKDIR /app
 
@@ -18,4 +18,4 @@ COPY . .
 USER bun
 EXPOSE 3000/tcp
 WORKDIR /app/server
-ENTRYPOINT [ "bun", "dev"]
+CMD [ "bun", "dev"]

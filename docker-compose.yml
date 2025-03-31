@@ -4,6 +4,8 @@ services:
     depends_on: 
      - postgres
      - minio
+    ports:
+      - 3000:3000
     build:
       context: .
       dockerfile: dockerfiles/server.Dockerfile
