@@ -1,8 +1,9 @@
-import Elysia from "elysia";
+import Elysia, { error, t } from "elysia";
 import { Client } from "minio";
 import { base } from "../base";
 import { auth } from "../auth";
 import { fromPromise, ResultAsync } from "neverthrow";
+import { unwrap } from "../errors";
 
 export const storage = new Elysia({ prefix: "/storage" })
   .use(base)
@@ -33,10 +34,19 @@ export const storage = new Elysia({ prefix: "/storage" })
 
     return { useMinio, env };
   })
-  .get("/presigned", ({ env, useMinio }) =>
-    useMinio((m) => m.presignedPutObject("enterprises", "test.txt", 30))
-      .map((r) =>
-        r.replace("http://minio:9000/", `https://storage.${env.DOMAIN}/`),
-      )
-      .map((r) => ({ url: r })),
+  .get(
+    "/presigned",
+    ({ env, useMinio }) =>
+      unwrap(
+        useMinio((m) => m.presignedPutObject("enterprises", "test.txt", 30))
+          .map((r) =>
+            r.replace("http://minio:9000/", `https://storage.${env.DOMAIN}/`),
+          )
+          .map((r) => ({ url: r })),
+      ),
+    {
+      response: t.Object({
+        url: t.String(),
+      }),
+    },
   );

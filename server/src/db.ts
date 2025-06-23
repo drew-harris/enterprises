@@ -1,6 +1,5 @@
 import { ExtractTablesWithRelations } from "drizzle-orm";
 import postgres from "postgres";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
 
 import { createContext } from "./context";
 import { drizzle, PostgresJsTransaction } from "drizzle-orm/postgres-js";
