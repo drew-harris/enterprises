@@ -9,3 +9,6 @@ tmux send-keys -t .1 "cd \"$pkg_dir\"" Enter
 tmux send-keys -t .0 "docker compose up --watch" Enter
 tmux send-keys -t .1 "bun dev" Enter
 exit
+
+#@ Test
+zsh -c "http https://admin.localhost"

@@ -2,6 +2,7 @@ import Elysia from "elysia";
 import { Client } from "minio";
 import { base } from "../base";
 import { auth } from "../auth";
+import { fromPromise, ResultAsync } from "neverthrow";
 
 export const storage = new Elysia({ prefix: "/storage" })
   .use(base)
@@ -19,17 +20,23 @@ export const storage = new Elysia({ prefix: "/storage" })
         minio.makeBucket("enterprises");
       }
     });
-    return { minio, env };
+
+    const useMinio = <T>(
+      useFn: (db: typeof minio) => Promise<T>,
+    ): ResultAsync<T, Error> => {
+      const result = fromPromise(
+        useFn(minio),
+        (e) => new Error("Minio Error", { cause: e }),
+      );
+      return result;
+    };
+
+    return { useMinio, env };
   })
-  .get("/presigned", async ({ env, minio }) => {
-    console.log("LOGGING THIS");
-    const presigned = await minio.presignedPutObject(
-      "enterprises",
-      "test.txt",
-      30,
-    );
-    return presigned.replace(
-      "http://minio:9000/",
-      `https://storage.${env.DOMAIN}/`,
-    );
-  });
+  .get("/presigned", ({ env, useMinio }) =>
+    useMinio((m) => m.presignedPutObject("enterprises", "test.txt", 30))
+      .map((r) =>
+        r.replace("http://minio:9000/", `https://storage.${env.DOMAIN}/`),
+      )
+      .map((r) => ({ url: r })),
+  );
