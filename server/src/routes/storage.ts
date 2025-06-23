@@ -1,4 +1,4 @@
-import Elysia, { error, t } from "elysia";
+import Elysia, { t } from "elysia";
 import { Client } from "minio";
 import { base } from "../base";
 import { auth } from "../auth";

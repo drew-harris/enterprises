@@ -7,13 +7,13 @@
     "start": "bun run src/index.ts"
   },
   "dependencies": {
-    "@yolk-oss/elysia-env": "2.0.x",
+    "@yolk-oss/elysia-env": "3.0.x",
     "drizzle-kit": "0.25.x",
     "drizzle-orm": "0.34.x",
-    "elysia": "1.2.x",
-    "minio": "^8.0.5",
-    "neverthrow": "^8.2.0",
-    "pino-pretty": "^13.0.0",
+    "elysia": "1.3.x",
+    "minio": "8.0.x",
+    "neverthrow": "8.2.x",
+    "pino-pretty": "13.0.x",
     "postgres": "3.4.x"
   },
   "devDependencies": {
