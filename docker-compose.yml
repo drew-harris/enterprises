@@ -9,6 +9,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/server.Dockerfile
+    tty: true
     env_file: 
       - ./server/.env
     environment: 
@@ -85,6 +86,8 @@ services:
       - minio_data:/data
     networks:
       - caddy
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
 
   adminer:
     profiles:

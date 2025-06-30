@@ -5,8 +5,9 @@ export class ErrorWithStatus extends Error {
   constructor(
     message: string,
     public status: number | keyof StatusMap,
+    { cause }: { cause?: Error | unknown } = {},
   ) {
-    super(message);
+    super(message, { cause });
   }
 }
 

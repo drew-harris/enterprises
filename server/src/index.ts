@@ -7,6 +7,7 @@ import { storage } from "./routes/storage";
 import { logger } from "@bogeychan/elysia-logger";
 import { Err, Ok } from "neverthrow";
 import { ErrorWithStatus } from "./errors";
+import { Storage } from "./lib/storage";
 
 const app = new Elysia()
   .onAfterHandle(({ response, set }) => {
@@ -38,9 +39,13 @@ const app = new Elysia()
   .use(storage)
   .get("/", () => "One more update test");
 
-migrate(db, {
-  migrationsFolder: "./drizzle",
-});
+// Init stuff
+await Promise.all([
+  Storage.init(),
+  migrate(db, {
+    migrationsFolder: "./drizzle",
+  }),
+]);
 
 Bun.serve({
   fetch(request) {

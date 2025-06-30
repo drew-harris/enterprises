@@ -3,6 +3,9 @@ import postgres from "postgres";
 
 import { createContext } from "./context";
 import { drizzle, PostgresJsTransaction } from "drizzle-orm/postgres-js";
+import { fromPromise } from "neverthrow";
+import { ErrorWithStatus } from "./errors";
+import { StatusMap } from "elysia";
 
 export type Transaction = PostgresJsTransaction<
   Record<string, never>,
@@ -21,13 +24,39 @@ const TransactionContext = createContext<{
   effects: (() => void | Promise<void>)[];
 }>();
 
-export async function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
+export class DatabaseError extends ErrorWithStatus {}
+
+export function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
   try {
     const { tx } = TransactionContext.use();
-    return callback(tx);
+    return fromPromise(
+      callback(tx),
+      (e) =>
+        new DatabaseError(
+          "Database Error",
+          StatusMap["Internal Server Error"],
+          { cause: e },
+        ),
+    );
   } catch {
-    return callback(queryClient);
+    return fromPromise(
+      callback(queryClient),
+      (e) =>
+        new DatabaseError("Database error", "Internal Server Error", {
+          cause: e,
+        }),
+    );
   }
+}
+
+export function useDb<T>(callback: (db: typeof queryClient) => Promise<T>) {
+  return fromPromise(
+    callback(queryClient),
+    (e) =>
+      new DatabaseError("Database error", "Internal Server Error", {
+        cause: e,
+      }),
+  );
 }
 
 export async function afterTx(effect: () => any | Promise<any>) {
@@ -47,14 +76,9 @@ export async function createTransaction<T>(
     return callback(tx);
   } catch {
     const effects: (() => void | Promise<void>)[] = [];
-    const result = await db.transaction(
-      async (tx) => {
-        return TransactionContext.with({ tx, effects }, () => callback(tx));
-      },
-      {
-        isolationLevel: "repeatable read",
-      },
-    );
+    const result = await db.transaction(async (tx) => {
+      return TransactionContext.with({ tx, effects }, () => callback(tx));
+    });
     await Promise.all(effects.map((x) => x()));
     return result as T;
   }

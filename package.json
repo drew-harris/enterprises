@@ -9,6 +9,7 @@
     "pkg"
   ],
   "dependencies": {
-    "@bogeychan/elysia-logger": "^0.1.8"
+    "@bogeychan/elysia-logger": "^0.1.8",
+    "arktype": "^2.1.20"
   }
 }
