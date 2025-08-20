@@ -1,13 +1,14 @@
-import { Elysia } from "elysia";
-import { base } from "./base";
-import { auth } from "./auth";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { db } from "./db";
-import { storage } from "./routes/storage";
 import { logger } from "@bogeychan/elysia-logger";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { Elysia } from "elysia";
 import { Err, Ok } from "neverthrow";
+import { auth } from "./auth";
+import { base } from "./base";
+import { db } from "./db";
 import { ErrorWithStatus } from "./errors";
+import { Caddy } from "./lib/caddy";
 import { Storage } from "./lib/storage";
+import { storage } from "./routes/storage";
 
 const app = new Elysia()
   .onAfterHandle(({ response, set }) => {
@@ -45,6 +46,8 @@ await Promise.all([
   migrate(db, {
     migrationsFolder: "./drizzle",
   }),
+
+  Caddy.ensureMinimumConfigForOperation(),
 ]);
 
 Bun.serve({

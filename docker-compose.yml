@@ -1,18 +1,18 @@
 services:
-  server: 
+  server:
     restart: always
-    depends_on: 
-     - postgres
-     - minio
+    depends_on:
+      - postgres
+      - minio
     ports:
       - 3000:3000
     build:
       context: .
       dockerfile: dockerfiles/server.Dockerfile
     tty: true
-    env_file: 
+    env_file:
       - ./server/.env
-    environment: 
+    environment:
       - DOMAIN=${DOMAIN:?DOMAIN must be set}
       - ROOT_KEY=${ROOT_KEY:?ROOT_KEY must be set}
       - DATABASE_URL=postgres://enterprises:enterprises@postgres:5432/enterprises
@@ -37,7 +37,7 @@ services:
       dockerfile: dockerfiles/caddy.Dockerfile
     env_file:
       - .env
-    environment: 
+    environment:
       - DOMAIN=${DOMAIN:?DOMAIN must be set}
       - CADDY_ADMIN=0.0.0.0:2019
     ports:
@@ -49,15 +49,6 @@ services:
       - caddy_config:/config
     networks:
       - caddy
-    develop:
-      watch:
-        - path: ./Caddyfile
-          target: /etc/caddy/Caddyfile
-          ignore:
-            - Caddyfile
-          action: sync+exec
-          exec: 
-            command: caddy reload --config /etc/caddy/Caddyfile
 
   postgres:
     image: postgres:17
@@ -87,7 +78,7 @@ services:
     networks:
       - caddy
     healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
 
   adminer:
     profiles:
@@ -110,4 +101,3 @@ volumes:
   caddy_config:
   postgres_data:
   minio_data:
-

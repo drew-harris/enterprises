@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@yolk-oss/elysia-env": "3.0.x",
+    "arktype": "^2.1.20",
     "drizzle-kit": "0.25.x",
     "drizzle-orm": "0.34.x",
     "elysia": "1.3.x",

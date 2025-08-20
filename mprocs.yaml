@@ -1,6 +1,10 @@
 procs:
   watch-package:
     cwd: ./pkg/
-    cmd: ['bun', 'run', 'dev']
+    cmd: ["bun", "run", "dev"]
   docker:
-    cmd: ['docker', 'compose', 'up', '--build', '--watch']
+    cmd: ["docker", "compose", "up", "--build", "--watch"]
+    stop: { send-keys: ["<C-c>"] }
+  just-server-logs:
+    cmd: ["docker", "compose", "logs", "--follow", "server", "--no-log-prefix"]
+    autorestart: true
