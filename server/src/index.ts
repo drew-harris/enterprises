@@ -1,4 +1,5 @@
 import { logger } from "@bogeychan/elysia-logger";
+import { PulumiCommand } from "@pulumi/pulumi/automation";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Elysia } from "elysia";
 import { Err, Ok } from "neverthrow";
@@ -8,6 +9,7 @@ import { db } from "./db";
 import { ErrorWithStatus } from "./errors";
 import { Caddy } from "./lib/caddy";
 import { Storage } from "./lib/storage";
+import { pino } from "./logging";
 import { storage } from "./routes/storage";
 
 const app = new Elysia()
@@ -49,6 +51,8 @@ if (!import.meta.hot) {
     }),
     Caddy.ensureMinimumConfigForOperation(),
   ]);
+
+  PulumiCommand.install().then((s) => console.log(s));
 }
 
 Bun.serve({

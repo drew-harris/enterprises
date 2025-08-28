@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Install curl
 RUN apt-get update && apt-get install -y curl
+RUN curl -fsSL https://get.pulumi.com | sh
 
 COPY ./package.json ./
 COPY bun.lock ./
@@ -11,6 +12,8 @@ RUN mkdir server
 RUN mkdir pkg
 COPY ./pkg/package.json ./pkg/
 COPY ./server/package.json ./server/
+
+ENV PATH="/root/.pulumi/bin:$PATH"
 
 RUN bun install --frozen-lockfile
 

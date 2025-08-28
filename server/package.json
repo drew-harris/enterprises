@@ -7,6 +7,7 @@
     "start": "bun run src/index.ts"
   },
   "dependencies": {
+    "@pulumi/pulumi": "^3.191.0",
     "@yolk-oss/elysia-env": "3.0.x",
     "arktype": "^2.1.20",
     "drizzle-kit": "0.25.x",
