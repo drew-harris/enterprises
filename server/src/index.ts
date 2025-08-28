@@ -41,14 +41,15 @@ const app = new Elysia()
   .get("/", () => "One more update test");
 
 // Init stuff
-await Promise.all([
-  Storage.init(),
-  migrate(db, {
-    migrationsFolder: "./drizzle",
-  }),
-
-  Caddy.ensureMinimumConfigForOperation(),
-]);
+if (!import.meta.hot) {
+  await Promise.all([
+    Storage.init(),
+    migrate(db, {
+      migrationsFolder: "./drizzle",
+    }),
+    Caddy.ensureMinimumConfigForOperation(),
+  ]);
+}
 
 Bun.serve({
   fetch(request) {

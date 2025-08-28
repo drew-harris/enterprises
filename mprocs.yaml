@@ -8,3 +8,6 @@ procs:
   just-server-logs:
     cmd: ["docker", "compose", "logs", "--follow", "server", "--no-log-prefix"]
     autorestart: true
+  trust-certs:
+    autostart: false
+    cmd: ["caddy", "trust"]
