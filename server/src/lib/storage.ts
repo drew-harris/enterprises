@@ -1,6 +1,6 @@
 import { Client } from "minio";
+import { fromPromise, type ResultAsync } from "neverthrow";
 import { Env } from "../env";
-import { fromPromise, ResultAsync } from "neverthrow";
 import { makeLogger } from "../logging";
 
 export namespace Storage {

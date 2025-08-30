@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { errAsync, fromPromise, okAsync, ResultAsync } from "neverthrow";
+import * as neverthrow from "neverthrow";
 import { parseToResult } from "../arktype";
 import { Env } from "../env";
 import { fn } from "../fn";
@@ -73,16 +73,17 @@ export namespace Caddy {
     },
   });
 
-  const fetchCurrentConfig = (): ResultAsync<
+  const fetchCurrentConfig = (): neverthrow.ResultAsync<
     typeof CaddyJsonConfig.infer,
     Error
   > =>
-    fromPromise(
-      fetch("http://caddy:2019/config"),
-      () => new Error("Failed to fetch caddy config"),
-    )
+    neverthrow
+      .fromPromise(
+        fetch("http://caddy:2019/config"),
+        () => new Error("Failed to fetch caddy config"),
+      )
       .andThen((response) =>
-        fromPromise(
+        neverthrow.fromPromise(
           response.json(),
           () => new Error("Failed to parse caddy config"),
         ),
@@ -99,27 +100,29 @@ export namespace Caddy {
       });
 
   const saveNewConfig = fn(CaddyJsonConfig, (config) => {
-    return fromPromise(
-      fetch("http://caddy:2019/load", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify(config),
-      }),
-      (_) => new Error("Failed to post new caddy config"),
-    ).andThen((res) =>
-      res.ok
-        ? okAsync(undefined)
-        : errAsync(new Error("Failed to save caddy config")),
-    );
+    return neverthrow
+      .fromPromise(
+        fetch("http://caddy:2019/load", {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify(config),
+        }),
+        (_) => new Error("Failed to post new caddy config"),
+      )
+      .andThen((res) =>
+        res.ok
+          ? neverthrow.okAsync(undefined)
+          : neverthrow.errAsync(new Error("Failed to save caddy config")),
+      );
   });
 
   export const updateCaddyConfig = (
     transform: (
       config: typeof CaddyJsonConfig.infer,
     ) => typeof CaddyJsonConfig.infer,
-  ): ResultAsync<void, Error> => {
+  ): neverthrow.ResultAsync<void, Error> => {
     log.debug("Updating caddy config");
     return fetchCurrentConfig()
       .map((oldConfig) => {
@@ -172,19 +175,19 @@ export namespace Caddy {
     },
   );
 
-  export const ensureMinimumConfigForOperation = (): ResultAsync<
+  export const ensureMinimumConfigForOperation = (): neverthrow.ResultAsync<
     void,
     Error
   > => {
     log.info("Ensuring minimum caddy config");
     return upsertNamedRoute({
       dial: "server:3000",
-      domain: `admin.${Env.env["DOMAIN"]}`,
+      domain: `admin.${Env.env.DOMAIN}`,
       id: "admin-server",
     }).andThen(() => {
       return upsertNamedRoute({
         dial: "minio:9001",
-        domain: `storage.${Env.env["DOMAIN"]}`,
+        domain: `storage.${Env.env.DOMAIN}`,
         id: "storage-server",
       });
     });

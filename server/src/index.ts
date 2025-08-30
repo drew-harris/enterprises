@@ -9,12 +9,11 @@ import { db } from "./db";
 import { ErrorWithStatus } from "./errors";
 import { Caddy } from "./lib/caddy";
 import { Storage } from "./lib/storage";
-import { pino } from "./logging";
 import { storage } from "./routes/storage";
 
 const app = new Elysia()
   .onAfterHandle(({ response, set }) => {
-    const result = response as any;
+    const result = response;
     if (result instanceof Ok) {
       return result.value;
     }

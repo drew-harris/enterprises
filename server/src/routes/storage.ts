@@ -1,4 +1,4 @@
-import Elysia, { t } from "elysia";
+import Elysia from "elysia";
 import { auth } from "../auth";
 import { base } from "../base";
 import { unwrap } from "../errors";

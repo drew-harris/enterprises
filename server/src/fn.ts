@@ -1,5 +1,6 @@
-import { Type } from "arktype";
-import { Result, ResultAsync } from "neverthrow";
+// biome-ignore-all lint/suspicious/noExplicitAny: lots of em
+import type { Type } from "arktype";
+import type { Result, ResultAsync } from "neverthrow";
 
 type Success<T extends Result<any, any>> = T extends Result<infer U, any>
   ? U
@@ -10,11 +11,9 @@ export function syncFn<
   Arg1 extends Type,
   Callback extends (arg1: Arg1["infer"]) => Result<any, Error>,
 >(arg1: Arg1, cb: Callback) {
-  const result = function (
+  const result = (
     input: Arg1["inferIn"],
-  ): Result<Success<ReturnType<Callback>>, Error> {
-    return cb(arg1.assert(input));
-  };
+  ): Result<Success<ReturnType<Callback>>, Error> => cb(arg1.assert(input));
   result.schema = arg1;
   result.rawCb = cb;
   return result;
@@ -24,11 +23,10 @@ export function fn<
   Arg1 extends Type,
   Callback extends (arg1: Arg1["infer"]) => ResultAsync<any, Error>,
 >(arg1: Arg1, cb: Callback) {
-  const result = function (
+  const result = (
     input: Arg1["inferIn"],
-  ): ResultAsync<Success<Awaited<ReturnType<Callback>>>, Error> {
-    return cb(arg1.assert(input));
-  };
+  ): ResultAsync<Success<Awaited<ReturnType<Callback>>>, Error> =>
+    cb(arg1.assert(input));
   result.schema = arg1;
   result.rawCb = cb;
   return result;

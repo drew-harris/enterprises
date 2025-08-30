@@ -1,6 +1,6 @@
-import { type User } from "./types.ts";
+import type { User } from "./types.ts";
 
-const testUser: User = {
+const _testUser: User = {
   name: "drew",
   age: 22,
 };

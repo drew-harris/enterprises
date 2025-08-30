@@ -4,6 +4,7 @@ export namespace Env {
   export const envSchema = type({
     ROOT_KEY: "string",
     DOMAIN: "string",
+    DATABASE_URL: "string",
     DISABLE_AUTH: type("string").pipe((input: unknown) => {
       if (input === "true") {
         return true;

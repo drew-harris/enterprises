@@ -15,7 +15,7 @@ type Context = {
 };
 
 const getConfig = async (): Promise<Config> => {
-  const configFile = process.cwd() + "/enterprises.json";
+  const configFile = `${process.cwd()}/enterprises.json`;
 
   try {
     const fileContents = await fs.readFile(configFile);

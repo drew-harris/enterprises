@@ -1,5 +1,5 @@
-import { Type } from "arktype";
-import { err, ok, Result } from "neverthrow";
+import type { Type } from "arktype";
+import { err, ok, type Result } from "neverthrow";
 
 export const parseToResult = <T extends Type>(
   schema: T,
@@ -8,6 +8,6 @@ export const parseToResult = <T extends Type>(
   try {
     return ok(schema.assert(value));
   } catch (error) {
-    return err(new Error("Failed to parse" + error));
+    return err(new Error(`Failed to parse${error}`));
   }
 };

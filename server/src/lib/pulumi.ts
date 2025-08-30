@@ -1,5 +1,5 @@
-import { LocalWorkspace, PulumiCommand } from "@pulumi/pulumi/automation";
+import { PulumiCommand } from "@pulumi/pulumi/automation";
 
 export namespace Pulumi {
-  const test = PulumiCommand.install();
+  const _test = PulumiCommand.install();
 }

@@ -1,18 +1,18 @@
-import { ExtractTablesWithRelations } from "drizzle-orm";
-import postgres from "postgres";
-
-import { createContext } from "./context";
-import { drizzle, PostgresJsTransaction } from "drizzle-orm/postgres-js";
-import { fromPromise } from "neverthrow";
-import { ErrorWithStatus } from "./errors";
+import type { ExtractTablesWithRelations } from "drizzle-orm";
+import { drizzle, type PostgresJsTransaction } from "drizzle-orm/postgres-js";
 import { StatusMap } from "elysia";
+import { fromPromise } from "neverthrow";
+import postgres from "postgres";
+import { createContext } from "./context";
+import { Env } from "./env";
+import { ErrorWithStatus } from "./errors";
 
 export type Transaction = PostgresJsTransaction<
   Record<string, never>,
   ExtractTablesWithRelations<Record<string, never>>
 >;
 
-const queryClient = postgres(process.env.DATABASE_URL!, {
+const queryClient = postgres(Env.env.DATABASE_URL, {
   onnotice: () => {},
 });
 export const db = drizzle(queryClient, { logger: false });
@@ -59,7 +59,7 @@ export function useDb<T>(callback: (db: typeof queryClient) => Promise<T>) {
   );
 }
 
-export async function afterTx(effect: () => any | Promise<any>) {
+export async function afterTx(effect: () => void | Promise<void>) {
   try {
     const { effects } = TransactionContext.use();
     effects.push(effect);

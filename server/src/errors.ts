@@ -1,5 +1,5 @@
 import { StatusMap } from "elysia";
-import { ResultAsync } from "neverthrow";
+import type { ResultAsync } from "neverthrow";
 
 export class ErrorWithStatus extends Error {
   constructor(

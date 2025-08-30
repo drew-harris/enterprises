@@ -12,7 +12,7 @@ export const deploy = command({
   name: "deplo",
   args: { stageFlag },
 
-  handler: async ({ stageFlag }) => {
+  handler: async () => {
     const context = getContext();
     const response = await context.request("/storage/presigned");
     if (!response.ok) {
