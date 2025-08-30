@@ -6,7 +6,7 @@
   },
   "workspaces": [
     "server",
-    "pkg"
+    "pkgs/*"
   ],
   "dependencies": {
     "@bogeychan/elysia-logger": "^0.1.8",

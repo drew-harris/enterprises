@@ -1,8 +1,8 @@
-import { AsyncLocalStorage } from "node:async_hooks";
+import * as nodeAsync_hooks from "node:async_hooks";
 import fs from "node:fs/promises";
-import { configSchema, type Config } from "./config.ts";
+import { type Config, configSchema } from "./config.ts";
 
-const contextStorage = new AsyncLocalStorage();
+const contextStorage = new nodeAsync_hooks.AsyncLocalStorage();
 
 type RequestFn = (
   path: string,
@@ -20,7 +20,7 @@ const getConfig = async (): Promise<Config> => {
   try {
     const fileContents = await fs.readFile(configFile);
     const config = JSON.parse(fileContents.toString());
-    return configSchema.parse(config);
+    return configSchema.assert(config);
   } catch (error) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
       throw new Error(
@@ -51,5 +51,5 @@ export const runWithCliContext = async <T>(callback: () => T) => {
     });
   };
 
-  contextStorage.run({ config, request } satisfies Context, callback);
+  contextStorage.run({ config, request }, callback);
 };

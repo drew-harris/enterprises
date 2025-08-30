@@ -9,7 +9,7 @@ const stageFlag = option({
 });
 
 export const deploy = command({
-  name: "deplo",
+  name: "deploy",
   args: { stageFlag },
 
   handler: async () => {

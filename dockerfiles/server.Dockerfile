@@ -1,4 +1,4 @@
-FROM oven/bun:1.2.8 as base
+FROM oven/bun:1.2.21 as base
 
 WORKDIR /app
 
@@ -9,8 +9,9 @@ RUN curl -fsSL https://get.pulumi.com | sh
 COPY ./package.json ./
 COPY bun.lock ./
 RUN mkdir server
-RUN mkdir pkg
-COPY ./pkg/package.json ./pkg/
+RUN mkdir pkgs
+RUN mkdir pkgs/client
+COPY ./pkgs/client/package.json ./pkgs/client/package.json
 COPY ./server/package.json ./server/
 
 ENV PATH="/root/.pulumi/bin:$PATH"

@@ -1,13 +1,13 @@
 import Elysia, { t } from "elysia";
-import { base } from "./base";
+import { Env } from "./env";
 
-export const auth = new Elysia({ prefix: "/auth" }).use(base).get(
+export const auth = new Elysia({ prefix: "/auth" }).get(
   "/forward",
-  ({ env, headers, set }) => {
-    if (env.DISABLE_AUTH) {
+  ({ headers, set }) => {
+    if (Env.env.DISABLE_AUTH) {
       return "Working auth";
     }
-    if (headers["root-key"] && headers["root-key"] === env.ROOT_KEY) {
+    if (headers["root-key"] && headers["root-key"] === Env.env.ROOT_KEY) {
       return "Working auth";
     }
 

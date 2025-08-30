@@ -1,6 +1,5 @@
 procs:
   watch-package:
-    cwd: ./pkg/
     cmd: ["bun", "run", "dev"]
   docker:
     cmd: ["docker", "compose", "up", "--build", "--watch"]

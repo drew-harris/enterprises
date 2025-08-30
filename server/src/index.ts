@@ -4,7 +4,6 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { Elysia } from "elysia";
 import { Err, Ok } from "neverthrow";
 import { auth } from "./auth";
-import { base } from "./base";
 import { db } from "./db";
 import { ErrorWithStatus } from "./errors";
 import { Caddy } from "./lib/caddy";
@@ -31,7 +30,6 @@ const app = new Elysia()
     }
     return response;
   })
-  .use(base)
   .use(auth)
   .use(
     logger({
