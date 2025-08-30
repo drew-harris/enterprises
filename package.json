@@ -17,6 +17,7 @@
     "@biomejs/biome": "2.2.2"
   },
   "trustedDependencies": [
+    "esbuild",
     "protobufjs"
   ]
 }

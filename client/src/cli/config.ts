@@ -1,7 +1,7 @@
 import { type } from "arktype";
 
 export const configSchema = type({
-  serverHost: "string",
+  adminUrl: "string",
   rootKey: "string",
 });
 

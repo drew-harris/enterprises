@@ -16,6 +16,17 @@ export namespace Env {
     }),
     MINIO_ACCESS_KEY: "string",
     MINIO_SECRET_KEY: "string",
+    DEV: type("string").pipe((input: unknown) => {
+      if (!input) {
+        return false;
+      }
+      if (input === "true") {
+        return true;
+      }
+      if (input === "false") {
+        return false;
+      }
+    }),
   });
 
   export const env = (() => {

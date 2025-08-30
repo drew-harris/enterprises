@@ -1,4 +1,4 @@
 {
-  "serverHost": "localhost",
+  "adminUrl": "http://admin.localhost",
   "rootKey": "thisismyrootkey"
 }

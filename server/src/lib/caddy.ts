@@ -65,7 +65,7 @@ export namespace Caddy {
       http: {
         servers: {
           srv0: {
-            listen: [":443"],
+            listen: Env.env.DEV ? [":443", ":80"] : [":443"],
             routes: [],
           },
         },

@@ -5,6 +5,9 @@ export const ping = command({
   name: "ping",
   args: {},
   handler: async () => {
-    const _context = getContext();
+    const context = getContext();
+    const response = await context.request("/ping");
+    const text = await response.text();
+    console.log(text);
   },
 });

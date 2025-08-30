@@ -23,9 +23,8 @@ const getConfig = async (): Promise<Config> => {
     return configSchema.assert(config);
   } catch (error) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-      throw new Error(
-        `Configuration file not found: ${configFile}. Please ensure the file exists.`,
-      );
+      console.error("Configuration file not found.");
+      process.exit(1);
     }
     throw error;
   }
@@ -42,7 +41,7 @@ export const runWithCliContext = async <T>(callback: () => T) => {
     path: string,
     params: Parameters<typeof fetch>[1],
   ): ReturnType<typeof fetch> => {
-    return fetch(`https://admin.${config.serverHost}${path}`, {
+    return fetch(`${config.adminUrl}${path}`, {
       ...params,
       headers: {
         ...params?.headers,

@@ -37,6 +37,7 @@ const app = new Elysia()
     }),
   )
   .use(storage)
+  .get("/ping", () => "pong")
   .get("/", () => "One more update test");
 
 // Init stuff
