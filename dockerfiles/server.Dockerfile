@@ -9,9 +9,8 @@ RUN curl -fsSL https://get.pulumi.com | sh
 COPY ./package.json ./
 COPY bun.lock ./
 RUN mkdir server
-RUN mkdir pkgs
-RUN mkdir pkgs/client
-COPY ./pkgs/client/package.json ./pkgs/client/package.json
+RUN mkdir client
+COPY ./client/package.json ./client/package.json
 COPY ./server/package.json ./server/
 
 ENV PATH="/root/.pulumi/bin:$PATH"

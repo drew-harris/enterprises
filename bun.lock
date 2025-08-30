@@ -11,7 +11,7 @@
         "@biomejs/biome": "2.2.2",
       },
     },
-    "pkgs/client": {
+    "client": {
       "name": "enterprises",
       "version": "0.0.1",
       "bin": {
@@ -388,7 +388,7 @@
 
     "end-of-stream": ["end-of-stream@1.4.5", "", { "dependencies": { "once": "^1.4.0" } }, "sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg=="],
 
-    "enterprises": ["enterprises@workspace:pkgs/client"],
+    "enterprises": ["enterprises@workspace:client"],
 
     "enterprises-server": ["enterprises-server@workspace:server"],
 
