@@ -80,12 +80,12 @@ export namespace Caddy {
     neverthrow
       .fromPromise(
         fetch("http://caddy:2019/config"),
-        () => new Error("Failed to fetch caddy config"),
+        (e) => new Error("Failed to fetch caddy config", { cause: e }),
       )
       .andThen((response) =>
         neverthrow.fromPromise(
           response.json(),
-          () => new Error("Failed to parse caddy config"),
+          (e) => new Error("Failed to parse caddy config", { cause: e }),
         ),
       )
       // If its null, then set it to the default minimum
@@ -109,7 +109,7 @@ export namespace Caddy {
           method: "POST",
           body: JSON.stringify(config),
         }),
-        (_) => new Error("Failed to post new caddy config"),
+        (e) => new Error("Failed to post new caddy config", { cause: e }),
       )
       .andThen((res) =>
         res.ok
