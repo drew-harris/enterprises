@@ -1,7 +1,7 @@
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import { type BunSQLTransaction, drizzle } from "drizzle-orm/bun-sql";
 import { StatusMap } from "elysia";
-import { fromPromise } from "neverthrow";
+import { fromPromise, type ResultAsync } from "neverthrow";
 import { createContext } from "./context";
 import { Env } from "./env";
 import { ErrorWithStatus } from "./errors";
@@ -22,7 +22,9 @@ const TransactionContext = createContext<{
 
 export class DatabaseError extends ErrorWithStatus {}
 
-export function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
+export function useTransaction<T>(
+  callback: (trx: TxOrDb) => ResultAsync<T, Error>,
+) {
   try {
     const { tx } = TransactionContext.use();
     return fromPromise(
@@ -45,7 +47,9 @@ export function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
   }
 }
 
-export function useDb<T>(callback: (db: typeof rawDb) => Promise<T>) {
+export function useDb<T>(
+  callback: (db: typeof rawDb) => ResultAsync<T, Error>,
+) {
   return fromPromise(
     callback(rawDb),
     (e) =>
@@ -64,18 +68,35 @@ export async function afterTx(effect: () => void | Promise<void>) {
   }
 }
 
-export async function createTransaction<T>(
-  callback: (tx: Transaction) => Promise<T>,
-): Promise<T> {
+export function createTransaction<T>(
+  callback: (tx: Transaction) => ResultAsync<T, Error>,
+): ResultAsync<T, Error> {
   try {
     const { tx } = TransactionContext.use();
     return callback(tx);
   } catch {
-    const effects: (() => void | Promise<void>)[] = [];
-    const result = await rawDb.transaction(async (tx) => {
-      return TransactionContext.with({ tx, effects }, () => callback(tx));
-    });
-    await Promise.all(effects.map((x) => x()));
-    return result as T;
+    return fromPromise(
+      (async () => {
+        const effects: (() => void | Promise<void>)[] = [];
+        const result = await rawDb.transaction(async (tx) => {
+          const callbackResult = TransactionContext.with({ tx, effects }, () =>
+            callback(tx),
+          );
+          const unwrappedResult = await callbackResult;
+          if (unwrappedResult.isErr()) {
+            throw unwrappedResult.error;
+          }
+          return unwrappedResult.value;
+        });
+        await Promise.all(effects.map((x) => x()));
+        return result;
+      })(),
+      (e) =>
+        new DatabaseError(
+          "Database error",
+          StatusMap["Internal Server Error"],
+          { cause: e },
+        ),
+    );
   }
 }

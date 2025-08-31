@@ -1,17 +1,47 @@
+import { type } from "arktype";
 import { S3Client } from "bun";
 import { Client } from "minio";
-import { fromThrowable, type ResultAsync } from "neverthrow";
+import { fromPromise, fromThrowable, type ResultAsync } from "neverthrow";
 import { Env } from "../env";
+import { ErrorWithStatus } from "../errors";
+import { fn } from "../fn";
 import { makeLogger } from "../logging";
 
+export class StorageError extends ErrorWithStatus {}
+
 export namespace Storage {
-  const log = makeLogger("storage");
+  const logger = makeLogger("storage");
 
   const s3Client = new S3Client({
     accessKeyId: Env.get("MINIO_ACCESS_KEY"),
     secretAccessKey: Env.get("MINIO_SECRET_KEY"),
     endpoint: `http://minio:9001`,
   });
+
+  export function useS3Client<T>(callback: (client: S3Client) => Promise<T>) {
+    return fromPromise(
+      callback(s3Client),
+      (e) =>
+        new StorageError("Storage error", "Internal Server Error", {
+          cause: e,
+        }),
+    );
+  }
+
+  export const assertFile = fn(
+    type({
+      filename: "string",
+      bucket: "string",
+    }),
+    (input) => {
+      logger.debug({ input }, "assertFile");
+      return useS3Client((c) => {
+        return c.exists(input.filename, {
+          bucket: input.bucket,
+        });
+      });
+    },
+  );
 
   const createBucket = async () => {
     const minio = new Client({
@@ -23,17 +53,17 @@ export namespace Storage {
     });
     const exists = await minio.bucketExists("repos");
     if (!exists) {
-      log.info("creating bucket");
+      logger.info("creating bucket");
       await minio.makeBucket("repos");
     }
   };
 
   export const init = async () => {
-    log.info("setting up S3 storage");
+    logger.info("setting up S3 storage");
     try {
       createBucket();
     } catch (_error) {
-      log.warn("S3 storage connection failed, but continuing");
+      logger.warn("S3 storage connection failed, but continuing");
     }
   };
 
@@ -42,7 +72,7 @@ export namespace Storage {
     expiry: number,
     bucket: string = "repos",
   ): ResultAsync<string, Error> => {
-    log.info({ key, expiry, bucket }, "getPresignedPutObject");
+    logger.info({ key, expiry, bucket }, "getPresignedPutObject");
 
     const presignSync = fromThrowable(
       () =>

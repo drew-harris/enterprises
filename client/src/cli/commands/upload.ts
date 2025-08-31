@@ -1,6 +1,6 @@
 import { command, option, string } from "cmd-ts";
 import { getContext } from "../context.ts";
-import { getTarballBuffer } from "../utils/createTar.ts";
+import { uploadRepo } from "../utils/uploadRepo.ts";
 
 const filenameFlag = option({
   type: string,
@@ -13,42 +13,21 @@ export const upload = command({
   name: "upload",
   args: { filenameFlag },
   description: "Upload current repository as tarball to S3",
-  handler: async ({ filenameFlag: filename }) => {
+  handler: async () => {
     const context = getContext();
 
-    console.log("Getting presigned URL...");
-    const presignedResponse = await context.request(
-      `/storage/presigned?filename=${encodeURIComponent(filename)}`,
-    );
+    const presignedResponse = await context.request(`/storage/presigned`);
     if (!presignedResponse.ok) {
       throw new Error(
         `Failed to get presigned URL: ${presignedResponse.statusText}`,
       );
     }
 
-    const { url } = await presignedResponse.json();
-    console.log("Presigned URL obtained");
+    const { url } = (await presignedResponse.json()) as {
+      url: string;
+      id: string;
+    };
 
-    console.log("Creating tarball...");
-    const tarballBuffer = await getTarballBuffer();
-    console.log(`Tarball created (${tarballBuffer.length} bytes)`);
-
-    console.log("Uploading to S3...", url);
-    const uploadResponse = await fetch(url, {
-      method: "PUT",
-      body: new Uint8Array(tarballBuffer),
-      headers: {
-        "Content-Type": "application/gzip",
-      },
-    });
-
-    if (!uploadResponse.ok) {
-      throw new Error(`Upload failed: ${uploadResponse.statusText}`);
-    }
-
-    const text = await uploadResponse.text();
-    console.log(text);
-
-    console.log(`Successfully uploaded ${filename} to S3`);
+    uploadRepo({ url });
   },
 });

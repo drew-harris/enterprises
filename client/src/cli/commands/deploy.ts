@@ -1,5 +1,6 @@
 import { command, option, string } from "cmd-ts";
 import { getContext } from "../context.ts";
+import { uploadRepo } from "../utils/uploadRepo.ts";
 
 const stageFlag = option({
   type: string,
@@ -14,10 +15,19 @@ export const deploy = command({
 
   handler: async () => {
     const context = getContext();
-    const response = await context.request("/storage/presigned");
-    if (!response.ok) {
-      throw new Error(response.statusText);
+
+    const presignedResponse = await context.request(`/storage/presigned`);
+    if (!presignedResponse.ok) {
+      throw new Error(
+        `Failed to get presigned URL: ${presignedResponse.statusText}`,
+      );
     }
-    console.log(await response.text());
+
+    const { url } = (await presignedResponse.json()) as {
+      url: string;
+      id: string;
+    };
+
+    uploadRepo({ url });
   },
 });

@@ -9,6 +9,7 @@ import { Caddy } from "./lib/caddy";
 import { Pulumi } from "./lib/pulumi";
 import { Storage } from "./lib/storage";
 import { pino } from "./logging";
+import { deployments } from "./routes/deployments";
 import { storage } from "./routes/storage";
 
 const app = new Elysia()
@@ -38,6 +39,7 @@ const app = new Elysia()
     }),
   )
   .use(storage)
+  .use(deployments)
   .get("/ping", () => "pong")
   .get("/", () => "One more update test");
 
