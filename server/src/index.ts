@@ -1,13 +1,14 @@
 import { logger } from "@bogeychan/elysia-logger";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { migrate } from "drizzle-orm/bun-sql/migrator";
 import { Elysia } from "elysia";
 import { Err, Ok } from "neverthrow";
 import { auth } from "./auth";
-import { db } from "./db";
+import { rawDb } from "./db";
 import { ErrorWithStatus } from "./errors";
 import { Caddy } from "./lib/caddy";
 import { Pulumi } from "./lib/pulumi";
 import { Storage } from "./lib/storage";
+import { pino } from "./logging";
 import { storage } from "./routes/storage";
 
 const app = new Elysia()
@@ -44,7 +45,8 @@ const app = new Elysia()
 if (!import.meta.hot) {
   await Promise.all([
     Storage.init(),
-    migrate(db, {
+    pino.info("Initializing database"),
+    migrate(rawDb, {
       migrationsFolder: "./drizzle",
     }),
     Caddy.ensureMinimumConfigForOperation(),

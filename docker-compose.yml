@@ -66,7 +66,8 @@ services:
       POSTGRES_PASSWORD: enterprises
       POSTGRES_DB: enterprises
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "enterprises"]
+      test:
+        ["CMD-SHELL", "pg_isready", "-d", "enterprises", "-U", "enterprises"]
       interval: 30s
       timeout: 60s
       retries: 5
@@ -84,7 +85,6 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
       MINIO_BROWSER: "on"
       MINIO_SKIP_CLIENT_CERT_VALIDATION: "on"
-      MINIO_SERVER_URL: "https://storage.${DOMAIN}"
       MINIO_ANONYMOUS_POLICY: "download"
     command: server /data --console-address ":9001" --address ":9000"
     volumes:

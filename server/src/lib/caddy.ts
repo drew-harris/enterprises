@@ -184,12 +184,20 @@ export namespace Caddy {
       dial: "server:3000",
       domain: `admin.${Env.env.DOMAIN}`,
       id: "admin-server",
-    }).andThen(() => {
-      return upsertNamedRoute({
-        dial: "minio:9001",
-        domain: `storage.${Env.env.DOMAIN}`,
-        id: "storage-server",
+    })
+      .andThen(() => {
+        return upsertNamedRoute({
+          dial: "minio:9000",
+          domain: `storage.${Env.env.DOMAIN}`,
+          id: "storage-server",
+        });
+      })
+      .andThen(() => {
+        return upsertNamedRoute({
+          dial: "minio:9001",
+          domain: `minio.${Env.env.DOMAIN}`,
+          id: "minio-panel",
+        });
       });
-    });
   };
 }

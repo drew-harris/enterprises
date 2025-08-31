@@ -1,23 +1,19 @@
 import type { ExtractTablesWithRelations } from "drizzle-orm";
-import { drizzle, type PostgresJsTransaction } from "drizzle-orm/postgres-js";
+import { type BunSQLTransaction, drizzle } from "drizzle-orm/bun-sql";
 import { StatusMap } from "elysia";
 import { fromPromise } from "neverthrow";
-import postgres from "postgres";
 import { createContext } from "./context";
 import { Env } from "./env";
 import { ErrorWithStatus } from "./errors";
 
-export type Transaction = PostgresJsTransaction<
+export type Transaction = BunSQLTransaction<
   Record<string, never>,
   ExtractTablesWithRelations<Record<string, never>>
 >;
 
-const queryClient = postgres(Env.env.DATABASE_URL, {
-  onnotice: () => {},
-});
-export const db = drizzle(queryClient, { logger: false });
+export const rawDb = drizzle(Env.env.DATABASE_URL, { logger: false });
 
-export type TxOrDb = Transaction | typeof queryClient;
+export type TxOrDb = Transaction | typeof rawDb;
 
 const TransactionContext = createContext<{
   tx: Transaction;
@@ -40,7 +36,7 @@ export function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
     );
   } catch {
     return fromPromise(
-      callback(queryClient),
+      callback(rawDb),
       (e) =>
         new DatabaseError("Database error", "Internal Server Error", {
           cause: e,
@@ -49,9 +45,9 @@ export function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
   }
 }
 
-export function useDb<T>(callback: (db: typeof queryClient) => Promise<T>) {
+export function useDb<T>(callback: (db: typeof rawDb) => Promise<T>) {
   return fromPromise(
-    callback(queryClient),
+    callback(rawDb),
     (e) =>
       new DatabaseError("Database error", "Internal Server Error", {
         cause: e,
@@ -76,7 +72,7 @@ export async function createTransaction<T>(
     return callback(tx);
   } catch {
     const effects: (() => void | Promise<void>)[] = [];
-    const result = await db.transaction(async (tx) => {
+    const result = await rawDb.transaction(async (tx) => {
       return TransactionContext.with({ tx, effects }, () => callback(tx));
     });
     await Promise.all(effects.map((x) => x()));
