@@ -22,9 +22,7 @@ const TransactionContext = createContext<{
 
 export class DatabaseError extends ErrorWithStatus {}
 
-export function useTransaction<T>(
-  callback: (trx: TxOrDb) => ResultAsync<T, Error>,
-) {
+export function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
   try {
     const { tx } = TransactionContext.use();
     return fromPromise(

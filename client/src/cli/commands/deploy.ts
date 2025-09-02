@@ -23,11 +23,50 @@ export const deploy = command({
       );
     }
 
-    const { url } = (await presignedResponse.json()) as {
+    const { url, id } = (await presignedResponse.json()) as {
       url: string;
       id: string;
     };
 
-    uploadRepo({ url });
+    await uploadRepo({ url });
+
+    const deployResponse = await context.request(`/deployments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        deploymentId: id,
+      }),
+    });
+
+    if (!deployResponse.ok) {
+      throw new Error(`Failed to deploy: ${deployResponse.statusText}`);
+    }
+
+    const reader = deployResponse.body?.getReader();
+    if (!reader) {
+      throw new Error("No response body");
+    }
+
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split("\n").filter((line) => line.trim());
+
+      for (const line of lines) {
+        try {
+          const data = JSON.parse(line);
+          if (data.type === "log-message") {
+            console.log(data.message);
+          }
+        } catch {
+          // Skip invalid JSON lines
+        }
+      }
+    }
   },
 });
