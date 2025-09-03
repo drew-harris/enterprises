@@ -10,3 +10,7 @@ procs:
   trust-certs:
     autostart: false
     cmd: ["caddy", "trust"]
+  log-explore:
+    autostart: false
+    cmd: ["./logs.sh"]
+    cwd: "./scripts"

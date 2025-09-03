@@ -1,7 +1,7 @@
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import { type BunSQLTransaction, drizzle } from "drizzle-orm/bun-sql";
 import { StatusMap } from "elysia";
-import { fromPromise, type ResultAsync } from "neverthrow";
+import { fromPromise, Result, type ResultAsync } from "neverthrow";
 import { createContext } from "./context";
 import { Env } from "./env";
 import { ErrorWithStatus } from "./errors";
@@ -68,9 +68,9 @@ export async function afterTx(effect: () => void | Promise<void>) {
   }
 }
 
-export function createTransaction<T>(
-  callback: (tx: Transaction) => ResultAsync<T, Error>,
-): ResultAsync<T, Error> {
+export async function createTransaction<T>(
+  callback: (tx: Transaction) => Promise<Result<T, Error>>,
+): Promise<Result<T, Error>> {
   try {
     const { tx } = TransactionContext.use();
     return callback(tx);

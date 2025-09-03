@@ -1,5 +1,5 @@
 import Elysia, { t } from "elysia";
-import { tables, useDb } from "../db";
+import { createTransaction, tables, useDb } from "../db";
 import { unwrap } from "../errors";
 import { Deployments, withDeployContext } from "../lib/deployments";
 import { makeLogger } from "../logging";
@@ -31,15 +31,48 @@ export const deployments = new Elysia({ prefix: "/deployments" })
             await withDeployContext(
               (message) => sendMessage("log", message),
               async () => {
-                const result = await Deployments.deploy({
-                  id: body.deploymentId,
-                  stage: "prod",
+                const result = await createTransaction(() => {
+                  const result = Deployments.deploy({
+                    id: body.deploymentId,
+                    stage: "prod",
+                  });
+                  return result;
                 });
 
                 if (result.isErr()) {
+                  useDb((db) =>
+                    db
+                      .insert(tables.deployments)
+                      .values({
+                        status: "error",
+                        id: body.deploymentId,
+                      })
+                      .onConflictDoUpdate({
+                        target: tables.deployments.id,
+                        set: {
+                          status: "error",
+                        },
+                      }),
+                  );
+
                   logger.error(result.error);
                   sendMessage("error", result.error.message);
                 } else {
+                  useDb((db) =>
+                    db
+                      .insert(tables.deployments)
+                      .values({
+                        status: "success",
+                        id: body.deploymentId,
+                      })
+                      .onConflictDoUpdate({
+                        target: tables.deployments.id,
+                        set: {
+                          status: "success",
+                        },
+                      }),
+                  );
+
                   logger.info("Deployment completed successfully");
                   sendMessage("success", "Deployment completed");
                 }
