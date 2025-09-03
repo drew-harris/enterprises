@@ -15,7 +15,7 @@ export namespace Storage {
   const s3Client = new S3Client({
     accessKeyId: Env.get("MINIO_ACCESS_KEY"),
     secretAccessKey: Env.get("MINIO_SECRET_KEY"),
-    endpoint: `http://minio:9001`,
+    endpoint: `http://minio:9000`,
   });
 
   export function useS3Client<T>(callback: (client: S3Client) => Promise<T>) {

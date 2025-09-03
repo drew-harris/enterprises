@@ -8,6 +8,13 @@
       "when": 1739846409449,
       "tag": "0000_dry_khan",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1756874318585,
+      "tag": "0001_volatile_maggott",
+      "breakpoints": true
     }
   ]
 }

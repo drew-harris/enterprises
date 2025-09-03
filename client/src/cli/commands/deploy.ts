@@ -60,11 +60,22 @@ export const deploy = command({
       for (const line of lines) {
         try {
           const data = JSON.parse(line);
-          if (data.type === "log-message") {
+
+          if (data.type === "log") {
             console.log(data.message);
+          } else if (data.type === "success") {
+            console.log(data.message || "Deployment completed successfully");
+            return;
+          } else if (data.type === "error") {
+            throw new Error(data.message || "Deployment failed");
           }
-        } catch {
-          // Skip invalid JSON lines
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            // Skip invalid JSON lines
+            continue;
+          }
+          // Re-throw deployment errors
+          throw error;
         }
       }
     }

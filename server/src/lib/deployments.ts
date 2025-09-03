@@ -1,46 +1,68 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { type } from "arktype";
-import { err, ok, type Result } from "neverthrow";
-import { useTransaction } from "../db";
+import { errAsync, okAsync, type Result } from "neverthrow";
+import { tables, useTransaction } from "../db";
 import { makeLogger } from "../logging";
-import { TB_ApiKeys } from "../schema";
 import { Storage } from "./storage";
 
-export namespace Deployments {
-  const _logger = makeLogger("deployments");
+const deployContext = new AsyncLocalStorage<{
+  log: (message: string) => void;
+}>();
 
+export function withDeployContext<T>(
+  logFn: (message: string) => void,
+  callback: () => Promise<T>,
+): Promise<T> {
+  return deployContext.run({ log: logFn }, callback);
+}
+
+export function clientLog(message: string): void {
+  const context = deployContext.getStore();
+  if (context?.log) {
+    context.log(message);
+  }
+}
+
+export namespace Deployments {
   const DeployArgs = type({
     id: "string",
     "stage?": "string",
   });
 
-  type DeployResultValue =
-    | { type: "log-message"; message: string }
-    | Result<undefined, Error>;
+  const logger = makeLogger("deployments");
 
-  export async function* deploy(
+  export async function deploy(
     args: typeof DeployArgs.infer,
-  ): AsyncGenerator<DeployResultValue> {
+  ): Promise<Result<void, Error>> {
+    logger.info({ id: args.id }, `Deploying`);
     const fileExists = await Storage.assertFile({
       bucket: "repos",
       filename: `${args.id}.tar.gz`,
-    }).match(
-      (r) => r,
-      (_e) => false,
-    );
+    })
+      .orTee((error) =>
+        logger.error({ error: error }, "error checking file exists"),
+      )
+      .match(
+        (r) => r,
+        (_e) => false,
+      );
+
+    if (!fileExists) {
+      return errAsync(new Error("File has not been uploaded"));
+    }
+
+    clientLog("File uploaded successfully");
 
     // officially create the row
     useTransaction((db) =>
-      db.insert(TB_ApiKeys).values({
+      db.insert(tables.deployments).values({
         id: args.id,
+        status: "pending",
       }),
     );
 
-    if (!fileExists) {
-      return err(new Error("File has not been uploaded"));
-    }
+    clientLog("Deployment record created");
 
-    yield { type: "log-message", message: "Uploaded file" };
-
-    return ok(undefined);
+    return okAsync();
   }
 }

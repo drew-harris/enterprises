@@ -1,4 +1,8 @@
+
 ###
+
+#@ get deployments
+http admin.localhost/deployments
 
 #@ startup
 let dir = "/Users/drew/programs/enterprises"
@@ -10,5 +14,3 @@ tmux send-keys -t .0 "docker compose up --watch" Enter
 tmux send-keys -t .1 "bun dev" Enter
 exit
 
-#@ Test
-zsh -c "http https://admin.localhost"

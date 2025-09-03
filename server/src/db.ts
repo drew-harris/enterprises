@@ -6,6 +6,8 @@ import { createContext } from "./context";
 import { Env } from "./env";
 import { ErrorWithStatus } from "./errors";
 
+export * as tables from "../src/schema";
+
 export type Transaction = BunSQLTransaction<
   Record<string, never>,
   ExtractTablesWithRelations<Record<string, never>>
@@ -46,8 +48,8 @@ export function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
 }
 
 export function useDb<T>(
-  callback: (db: typeof rawDb) => ResultAsync<T, Error>,
-) {
+  callback: (db: typeof rawDb) => Promise<T>,
+): ResultAsync<T, Error> {
   return fromPromise(
     callback(rawDb),
     (e) =>
