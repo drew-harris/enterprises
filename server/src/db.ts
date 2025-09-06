@@ -1,7 +1,7 @@
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import { type BunSQLTransaction, drizzle } from "drizzle-orm/bun-sql";
 import { StatusMap } from "elysia";
-import { fromPromise, Result, type ResultAsync } from "neverthrow";
+import { fromPromise, type Result, type ResultAsync } from "neverthrow";
 import { createContext } from "./context";
 import { Env } from "./env";
 import { ErrorWithStatus } from "./errors";
@@ -40,9 +40,13 @@ export function useTransaction<T>(callback: (trx: TxOrDb) => Promise<T>) {
     return fromPromise(
       callback(rawDb),
       (e) =>
-        new DatabaseError("Database error", "Internal Server Error", {
-          cause: e,
-        }),
+        new DatabaseError(
+          "Database error",
+          StatusMap["Internal Server Error"],
+          {
+            cause: e,
+          },
+        ),
     );
   }
 }
@@ -53,7 +57,7 @@ export function useDb<T>(
   return fromPromise(
     callback(rawDb),
     (e) =>
-      new DatabaseError("Database error", "Internal Server Error", {
+      new DatabaseError("Database error", StatusMap["Internal Server Error"], {
         cause: e,
       }),
   );
