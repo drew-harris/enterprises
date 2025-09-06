@@ -5,7 +5,7 @@ export const apiKeys = pgTable("api_keys", {
 });
 
 export const deployments = pgTable("deployments", {
-  id: text("id").notNull(),
+  id: text("id").notNull().primaryKey().unique(),
   status: text("status")
     .$type<"pending" | "error" | "success">()
     .default("pending"),

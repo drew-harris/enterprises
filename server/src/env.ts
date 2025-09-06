@@ -16,6 +16,7 @@ export namespace Env {
     }),
     MINIO_ACCESS_KEY: "string",
     MINIO_SECRET_KEY: "string",
+    SANDBOX_PATH: "string",
     DEV: type("string").pipe((input: unknown) => {
       if (!input) {
         return false;

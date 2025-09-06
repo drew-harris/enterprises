@@ -1,13 +1,13 @@
 import { type } from "arktype";
 import { S3Client } from "bun";
 import { Client } from "minio";
-import { errAsync, fromPromise, fromThrowable, type ResultAsync } from "neverthrow";
+import { fromPromise, fromThrowable, type ResultAsync } from "neverthrow";
 import { Env } from "../env";
 import { ErrorWithStatus } from "../errors";
 import { fn } from "../fn";
 import { makeLogger } from "../logging";
 
-export class StorageError extends ErrorWithStatus { }
+export class StorageError extends ErrorWithStatus {}
 
 export namespace Storage {
   const logger = makeLogger("storage");
@@ -92,9 +92,31 @@ export namespace Storage {
       .andTee((r) => console.log(r));
   };
 
-  export function downloadFile(args: { bucket: string; filename: string; destination: string; }): ResultAsync<void, Error> {
-    const file = s3Client.file(args.filename, { bucket: args.bucket, })
-    // downloads the file to /temp/destination
-    return errAsync(new Error("NOT IMPLEMENTED"))
+  export function downloadFile(args: {
+    bucket: string;
+    filename: string;
+    destination: string;
+  }): ResultAsync<void, Error> {
+    const file = s3Client.file(args.filename, { bucket: args.bucket });
+    logger.info(
+      {
+        filename: args.filename,
+        destination: args.destination,
+        bucket: args.bucket,
+      },
+      "downloadFile",
+    );
+    return fromPromise(
+      (async () => {
+        const data = await file.bytes();
+        await Bun.write(args.destination, data, { createPath: true });
+      })(),
+      (e) => {
+        console.error(e);
+        return new Error("Failed to download file", {
+          cause: e,
+        });
+      },
+    );
   }
 }

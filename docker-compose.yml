@@ -23,6 +23,8 @@ services:
       # - MINIO_USE_SSL=false
     networks:
       - caddy
+    volumes:
+      - ./sandbox:/sandbox
     develop:
       watch:
         - path: ./server
@@ -67,13 +69,13 @@ services:
       POSTGRES_DB: enterprises
     ports:
       - 5432:5432
-    healthcheck:
-      test:
-        ["CMD-SHELL", "pg_isready", "-d", "enterprises", "-U", "enterprises"]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-      start_period: 80s
+    # healthcheck:
+    #   test:
+    #     ["CMD-SHELL", "pg_isready", "-d", "enterprises", "-U", "enterprises"]
+    #   interval: 30s
+    #   timeout: 60s
+    #   retries: 5
+    # start_period: 80s
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:

@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { type } from "arktype";
 import { errAsync, okAsync, type Result } from "neverthrow";
 import { tables, useTransaction } from "../db";
+import { Env } from "../env";
 import { makeLogger } from "../logging";
 import { Storage } from "./storage";
 
@@ -59,15 +60,17 @@ export namespace Deployments {
         id: args.id,
         status: "pending",
       }),
-    );
-
-    // extract the files
-    console.log("Extracting files");
-    const _result = await Storage.downloadFile({
-      bucket: "repos",
-      filename: `${args.id}.tar.gz`,
-      destination: `/tmp/${args.id}`,
-    });
+    )
+      .andThen(() => {
+        return Storage.downloadFile({
+          bucket: "repos",
+          filename: `${args.id}.tar.gz`,
+          destination: `${Env.env.SANDBOX_PATH}/${args.id}.tar.gz`,
+        });
+      })
+      .orTee((error) =>
+        logger.error({ error: error }, "error downloading file"),
+      );
 
     clientLog("Deployment record created");
 
