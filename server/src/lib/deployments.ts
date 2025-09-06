@@ -61,6 +61,14 @@ export namespace Deployments {
       }),
     );
 
+    // extract the files
+    console.log("Extracting files");
+    const result = await Storage.downloadFile({
+      bucket: "repos",
+      filename: `${args.id}.tar.gz`,
+      destination: `/tmp/${args.id}`,
+    });
+
     clientLog("Deployment record created");
 
     return okAsync();

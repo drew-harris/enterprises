@@ -1,7 +1,7 @@
 import { type } from "arktype";
 import { S3Client } from "bun";
 import { Client } from "minio";
-import { fromPromise, fromThrowable, type ResultAsync } from "neverthrow";
+import { errAsync, fromPromise, fromThrowable, type ResultAsync } from "neverthrow";
 import { Env } from "../env";
 import { ErrorWithStatus } from "../errors";
 import { fn } from "../fn";
@@ -91,4 +91,10 @@ export namespace Storage {
       .asyncMap((url) => Promise.resolve(url))
       .andTee((r) => console.log(r));
   };
+
+    export function downloadFile(args: { bucket: string; filename: string; destination: string; }): ResultAsync<void, Error> {
+      const file = s3Client.file(args.filename, { bucket: args.bucket, })
+      // downloads the file to /temp/destination
+      return errAsync(new Error("NOT IMPLEMENTED"))
+    }
 }
