@@ -7,14 +7,14 @@ import { ErrorWithStatus } from "../errors";
 import { fn } from "../fn";
 import { makeLogger } from "../logging";
 
-export class StorageError extends ErrorWithStatus {}
+export class StorageError extends ErrorWithStatus { }
 
 export namespace Storage {
   const logger = makeLogger("storage");
 
   const s3Client = new S3Client({
-    accessKeyId: Env.get("MINIO_ACCESS_KEY"),
-    secretAccessKey: Env.get("MINIO_SECRET_KEY"),
+    accessKeyId: Env.env.MINIO_ACCESS_KEY,
+    secretAccessKey: Env.env.MINIO_SECRET_KEY,
     endpoint: `http://minio:9000`,
   });
 
@@ -47,8 +47,8 @@ export namespace Storage {
     const minio = new Client({
       endPoint: "minio",
       port: 9000,
-      accessKey: Env.get("MINIO_ACCESS_KEY"),
-      secretKey: Env.get("MINIO_SECRET_KEY"),
+      accessKey: Env.env.MINIO_ACCESS_KEY,
+      secretKey: Env.env.MINIO_SECRET_KEY,
       useSSL: false,
     });
     const exists = await minio.bucketExists("repos");
@@ -92,9 +92,9 @@ export namespace Storage {
       .andTee((r) => console.log(r));
   };
 
-    export function downloadFile(args: { bucket: string; filename: string; destination: string; }): ResultAsync<void, Error> {
-      const file = s3Client.file(args.filename, { bucket: args.bucket, })
-      // downloads the file to /temp/destination
-      return errAsync(new Error("NOT IMPLEMENTED"))
-    }
+  export function downloadFile(args: { bucket: string; filename: string; destination: string; }): ResultAsync<void, Error> {
+    const file = s3Client.file(args.filename, { bucket: args.bucket, })
+    // downloads the file to /temp/destination
+    return errAsync(new Error("NOT IMPLEMENTED"))
+  }
 }
