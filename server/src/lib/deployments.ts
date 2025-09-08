@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { type } from "arktype";
-import { errAsync, okAsync, type Result } from "neverthrow";
+import { errAsync, type Result } from "neverthrow";
 import { tables, useTransaction } from "../db";
 import { Env } from "../env";
 import { makeLogger } from "../logging";
@@ -55,7 +55,7 @@ export namespace Deployments {
     clientLog("File uploaded successfully");
 
     // officially create the row
-    useTransaction((db) =>
+    const result = useTransaction((db) =>
       db.insert(tables.deployments).values({
         id: args.id,
         status: "pending",
@@ -70,10 +70,19 @@ export namespace Deployments {
       })
       .orTee((error) =>
         logger.error({ error: error }, "error downloading file"),
+      )
+      .andThen(() =>
+        Storage.extractFile({
+          filename: `${Env.env.SANDBOX_PATH}/${args.id}.tar.gz`,
+          destination: `${Env.env.SANDBOX_PATH}/${args.id}`,
+        }),
+      )
+      .orTee((error) =>
+        logger.error({ error: error }, "error extracting file"),
       );
 
     clientLog("Deployment record created");
 
-    return okAsync();
+    return result;
   }
 }

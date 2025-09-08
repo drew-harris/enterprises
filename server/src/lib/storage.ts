@@ -2,6 +2,7 @@ import { type } from "arktype";
 import { S3Client } from "bun";
 import { Client } from "minio";
 import { fromPromise, fromThrowable, type ResultAsync } from "neverthrow";
+import * as tar from "tar";
 import { Env } from "../env";
 import { ErrorWithStatus } from "../errors";
 import { fn } from "../fn";
@@ -120,10 +121,34 @@ export namespace Storage {
     );
   }
 
-  export function extractFile(_args: {
+  export function extractFile(args: {
     filename: string;
     destination: string;
-  }): ResultAsync<unknown, Error> {
-    return okAsync({});
+  }): ResultAsync<void, Error> {
+    logger.info(
+      { filename: args.filename, destination: args.destination },
+      "extractFile",
+    );
+
+    return fromPromise(
+      Bun.write(`${args.destination}/.keep`, "", { createPath: true }),
+      (err) => {
+        return new Error("Failed to create .keep file", {
+          cause: err,
+        });
+      },
+    ).andThen((_bytes) => {
+      return fromPromise(
+        tar.extract({
+          file: args.filename,
+          cwd: args.destination,
+        }),
+        (err) => {
+          return new Error("Failed to extract tar file", {
+            cause: err,
+          });
+        },
+      );
+    });
   }
 }
