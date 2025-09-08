@@ -119,4 +119,11 @@ export namespace Storage {
       },
     );
   }
+
+  export function extractFile(_args: {
+    filename: string;
+    destination: string;
+  }): ResultAsync<unknown, Error> {
+    return okAsync({});
+  }
 }
