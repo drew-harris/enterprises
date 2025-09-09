@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { type } from "arktype";
-import { errAsync, type Result } from "neverthrow";
+import { errAsync, fromPromise, okAsync, type Result } from "neverthrow";
 import { tables, useTransaction } from "../db";
 import { Env } from "../env";
 import { makeLogger } from "../logging";
@@ -34,7 +34,7 @@ export namespace Deployments {
 
   export async function deploy(
     args: typeof DeployArgs.infer,
-  ): Promise<Result<void, Error>> {
+  ): Promise<Result<boolean, Error>> {
     logger.info({ id: args.id }, `Deploying`);
     const fileExists = await Storage.assertFile({
       bucket: "repos",
@@ -54,6 +54,8 @@ export namespace Deployments {
 
     clientLog("File uploaded successfully");
 
+    const folderPath = `${Env.env.SANDBOX_PATH}/${args.id}`;
+
     // officially create the row
     const result = useTransaction((db) =>
       db.insert(tables.deployments).values({
@@ -65,21 +67,29 @@ export namespace Deployments {
         return Storage.downloadFile({
           bucket: "repos",
           filename: `${args.id}.tar.gz`,
-          destination: `${Env.env.SANDBOX_PATH}/${args.id}.tar.gz`,
+          destination: `${folderPath}.tar.gz`,
         });
       })
-      .orTee((error) =>
-        logger.error({ error: error }, "error downloading file"),
-      )
       .andThen(() =>
         Storage.extractFile({
-          filename: `${Env.env.SANDBOX_PATH}/${args.id}.tar.gz`,
-          destination: `${Env.env.SANDBOX_PATH}/${args.id}`,
+          filename: `${folderPath}.tar.gz`,
+          destination: `${folderPath}`,
         }),
       )
-      .orTee((error) =>
-        logger.error({ error: error }, "error extracting file"),
-      );
+      // assert theres an enterprises.ts file in there
+      .andThen(() => {
+        return fromPromise(
+          Bun.file(`${folderPath}/enterprises.ts`).exists(),
+          (error) =>
+            new Error("Couldn't get enterprises.ts file", { cause: error }),
+        );
+      })
+      .andThen((r) => {
+        if (!r) {
+          return errAsync(new Error("enterprises.ts file not found"));
+        }
+        return okAsync(r);
+      });
 
     clientLog("Deployment record created");
 

@@ -95,12 +95,18 @@ export async function createTransaction<T>(
         await Promise.all(effects.map((x) => x()));
         return result;
       })(),
-      (e) =>
-        new DatabaseError(
+      (e) => {
+        if (e instanceof Error) {
+          return e;
+        }
+        return new DatabaseError(
           "Database error",
           StatusMap["Internal Server Error"],
-          { cause: e },
-        ),
+          {
+            cause: e,
+          },
+        );
+      },
     );
   }
 }

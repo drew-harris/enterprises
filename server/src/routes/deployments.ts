@@ -31,8 +31,8 @@ export const deployments = new Elysia({ prefix: "/deployments" })
             await withDeployContext(
               (message) => sendMessage("log", message),
               async () => {
-                const result = await createTransaction(() => {
-                  const result = Deployments.deploy({
+                const result = await createTransaction(async () => {
+                  const result = await Deployments.deploy({
                     id: body.deploymentId,
                     stage: "prod",
                   });
