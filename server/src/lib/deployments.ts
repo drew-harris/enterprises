@@ -1,6 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { type } from "arktype";
-import { errAsync, fromPromise, okAsync, type Result } from "neverthrow";
 import { tables, useTransaction } from "../db";
 import { Env } from "../env";
 import { makeLogger } from "../logging";
@@ -34,22 +33,22 @@ export namespace Deployments {
 
   export async function deploy(
     args: typeof DeployArgs.infer,
-  ): Promise<Result<unknown, Error>> {
+  ): Promise<unknown> {
     logger.info({ id: args.id }, `Deploying`);
-    const fileExists = await Storage.assertFile({
+    const fileExistsResult = await Storage.assertFile({
       bucket: "repos",
       filename: `${args.id}.tar.gz`,
-    })
-      .orTee((error) =>
-        logger.error({ error: error }, "error checking file exists"),
-      )
-      .match(
-        (r) => r,
-        (_e) => false,
-      );
+    });
+
+    const fileExists = fileExistsResult.match(
+      (success) => success,
+      (error) => {
+        throw new Error(`error checking file exists: ${error}`);
+      },
+    );
 
     if (!fileExists) {
-      return errAsync(new Error("File has not been uploaded"));
+      throw new Error("File has not been uploaded");
     }
 
     clientLog("File uploaded successfully");
@@ -57,55 +56,47 @@ export namespace Deployments {
     const folderPath = `${Env.env.SANDBOX_PATH}/${args.id}`;
 
     // officially create the row
-    const result = useTransaction((db) =>
+    await useTransaction((db) =>
       db.insert(tables.deployments).values({
         id: args.id,
         status: "pending",
       }),
-    )
-      .andThen(() => {
-        return Storage.downloadFile({
-          bucket: "repos",
-          filename: `${args.id}.tar.gz`,
-          destination: `${folderPath}.tar.gz`,
-        });
-      })
-      .andThen(() =>
-        Storage.extractFile({
-          filename: `${folderPath}.tar.gz`,
-          destination: `${folderPath}`,
-        }),
-      )
-      // assert theres an enterprises.ts file in there
-      .andThen(() => {
-        return fromPromise(
-          Bun.file(`${folderPath}/enterprises.ts`).exists(),
-          (error) =>
-            new Error("Couldn't get enterprises.ts file", { cause: error }),
-        );
-      })
-      .andThen((r) => {
-        if (!r) {
-          return errAsync(new Error("enterprises.ts file not found"));
-        }
-        return okAsync(r);
-      })
-      // try to run enterprises.ts
-      .andThen(() => {
-        logger.info("Running enterprises.ts");
-        return fromPromise(
-          import(`${folderPath}/enterprises.ts`),
-          (error) =>
-            new Error("Couldn't import enterprises.ts", { cause: error }),
-        );
-      })
-      // attempt to run the default export function
-      .andThen((r) => {
-        return fromPromise(
-          r.default(),
-          (error) => new Error("Couldn't run enterprises.ts", { cause: error }),
-        );
+    );
+
+    await Storage.downloadFile({
+      bucket: "repos",
+      filename: `${args.id}.tar.gz`,
+      destination: `${folderPath}.tar.gz`,
+    });
+
+    await Storage.extractFile({
+      filename: `${folderPath}.tar.gz`,
+      destination: `${folderPath}`,
+    });
+
+    // assert theres an enterprises.ts file in there
+    const enterprisesFileExists = await Bun.file(`${folderPath}/enterprises.ts`)
+      .exists()
+      .catch((error) => {
+        throw new Error("Couldn't get enterprises.ts file", { cause: error });
       });
+
+    if (!enterprisesFileExists) {
+      throw new Error("enterprises.ts file not found");
+    }
+
+    // try to run enterprises.ts
+    logger.info("Running enterprises.ts");
+    const module = await import(`${folderPath}/enterprises.ts`).catch(
+      (error) => {
+        throw new Error("Couldn't import enterprises.ts", { cause: error });
+      },
+    );
+
+    // attempt to run the default export function
+    const result = await module.default().catch((error: unknown) => {
+      throw new Error("Couldn't run enterprises.ts", { cause: error });
+    });
 
     clientLog("Deployment record created");
 

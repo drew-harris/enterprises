@@ -1,7 +1,7 @@
 import Elysia, { t } from "elysia";
-import { createTransaction, tables, useDb } from "../db";
+import { tables, useDb } from "../db";
 import { unwrap } from "../errors";
-import { Deployments, withDeployContext } from "../lib/deployments";
+import { Deployments } from "../lib/deployments";
 import { makeLogger } from "../logging";
 
 const logger = makeLogger("deploymentRoute");
@@ -26,63 +26,47 @@ export const deployments = new Elysia({ prefix: "/deployments" })
             const data = message ? { type, message } : { type };
             controller.enqueue(encoder.encode(`${JSON.stringify(data)}\n`));
           };
-
           try {
-            await withDeployContext(
-              (message) => sendMessage("log", message),
-              async () => {
-                const result = await createTransaction(async () => {
-                  const result = await Deployments.deploy({
-                    id: body.deploymentId,
-                    stage: "prod",
-                  });
-                  return result;
-                });
-
-                if (result.isErr()) {
-                  useDb((db) =>
-                    db
-                      .insert(tables.deployments)
-                      .values({
-                        status: "error",
-                        id: body.deploymentId,
-                      })
-                      .onConflictDoUpdate({
-                        target: tables.deployments.id,
-                        set: {
-                          status: "error",
-                        },
-                      }),
-                  );
-
-                  logger.error(result.error);
-                  sendMessage("error", result.error.message);
-                } else {
-                  useDb((db) =>
-                    db
-                      .insert(tables.deployments)
-                      .values({
-                        status: "success",
-                        id: body.deploymentId,
-                      })
-                      .onConflictDoUpdate({
-                        target: tables.deployments.id,
-                        set: {
-                          status: "success",
-                        },
-                      }),
-                  );
-
-                  logger.info("Deployment completed successfully");
-                  sendMessage("success", "Deployment completed");
-                }
-              },
+            const _result = await Deployments.deploy({
+              id: body.deploymentId,
+              stage: "prod",
+            });
+            useDb((db) =>
+              db
+                .insert(tables.deployments)
+                .values({
+                  status: "success",
+                  id: body.deploymentId,
+                })
+                .onConflictDoUpdate({
+                  target: tables.deployments.id,
+                  set: {
+                    status: "success",
+                  },
+                }),
             );
-          } catch (error) {
+            logger.info("Deployment completed successfully");
+            sendMessage("success", "Deployment completed");
+          } catch (error: unknown) {
             logger.error(error);
-            sendMessage(
-              "error",
-              error instanceof Error ? error.message : "Unknown error",
+            if (error instanceof Error) {
+              sendMessage("error", error.message);
+            } else {
+              sendMessage("error", "Unknown error");
+            }
+            useDb((db) =>
+              db
+                .insert(tables.deployments)
+                .values({
+                  status: "error",
+                  id: body.deploymentId,
+                })
+                .onConflictDoUpdate({
+                  target: tables.deployments.id,
+                  set: {
+                    status: "error",
+                  },
+                }),
             );
           } finally {
             controller.close();

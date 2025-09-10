@@ -48,9 +48,7 @@
         "deployments_id_unique": {
           "name": "deployments_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "policies": {},

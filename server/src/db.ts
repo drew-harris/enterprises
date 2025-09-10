@@ -1,7 +1,7 @@
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import { type BunSQLTransaction, drizzle } from "drizzle-orm/bun-sql";
 import { StatusMap } from "elysia";
-import { fromPromise, type Result, type ResultAsync } from "neverthrow";
+import { fromPromise, type ResultAsync } from "neverthrow";
 import { createContext } from "./context";
 import { Env } from "./env";
 import { ErrorWithStatus } from "./errors";
@@ -73,40 +73,17 @@ export async function afterTx(effect: () => void | Promise<void>) {
 }
 
 export async function createTransaction<T>(
-  callback: (tx: Transaction) => Promise<Result<T, Error>>,
-): Promise<Result<T, Error>> {
+  callback: (tx: Transaction) => Promise<T>,
+): Promise<T> {
   try {
     const { tx } = TransactionContext.use();
     return callback(tx);
   } catch {
-    return fromPromise(
-      (async () => {
-        const effects: (() => void | Promise<void>)[] = [];
-        const result = await rawDb.transaction(async (tx) => {
-          const callbackResult = TransactionContext.with({ tx, effects }, () =>
-            callback(tx),
-          );
-          const unwrappedResult = await callbackResult;
-          if (unwrappedResult.isErr()) {
-            throw unwrappedResult.error;
-          }
-          return unwrappedResult.value;
-        });
-        await Promise.all(effects.map((x) => x()));
-        return result;
-      })(),
-      (e) => {
-        if (e instanceof Error) {
-          return e;
-        }
-        return new DatabaseError(
-          "Database error",
-          StatusMap["Internal Server Error"],
-          {
-            cause: e,
-          },
-        );
-      },
-    );
+    const effects: (() => void | Promise<void>)[] = [];
+    const result = await rawDb.transaction(async (tx) => {
+      return TransactionContext.with({ tx, effects }, () => callback(tx));
+    });
+    await Promise.all(effects.map((x) => x()));
+    return result;
   }
 }
