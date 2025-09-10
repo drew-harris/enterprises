@@ -34,7 +34,7 @@ export namespace Deployments {
 
   export async function deploy(
     args: typeof DeployArgs.infer,
-  ): Promise<Result<boolean, Error>> {
+  ): Promise<Result<unknown, Error>> {
     logger.info({ id: args.id }, `Deploying`);
     const fileExists = await Storage.assertFile({
       bucket: "repos",
@@ -89,6 +89,22 @@ export namespace Deployments {
           return errAsync(new Error("enterprises.ts file not found"));
         }
         return okAsync(r);
+      })
+      // try to run enterprises.ts
+      .andThen(() => {
+        logger.info("Running enterprises.ts");
+        return fromPromise(
+          import(`${folderPath}/enterprises.ts`),
+          (error) =>
+            new Error("Couldn't import enterprises.ts", { cause: error }),
+        );
+      })
+      // attempt to run the default export function
+      .andThen((r) => {
+        return fromPromise(
+          r.default(),
+          (error) => new Error("Couldn't run enterprises.ts", { cause: error }),
+        );
       });
 
     clientLog("Deployment record created");
