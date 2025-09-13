@@ -12,6 +12,9 @@ import { pino } from "./logging";
 import { deployments } from "./routes/deployments";
 import { storage } from "./routes/storage";
 
+import { pkgName } from "enterprises";
+
+
 const app = new Elysia()
   .onAfterHandle(({ response, set }) => {
     const result = response;

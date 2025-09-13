@@ -17,7 +17,8 @@
     "nanoid": "^5.1.5",
     "neverthrow": "8.2.x",
     "pino-pretty": "13.1.1",
-    "postgres": "3.4.x"
+    "postgres": "3.4.x",
+    "tsup": "^8.5.0"
   },
   "devDependencies": {
     "bun-types": "latest"
