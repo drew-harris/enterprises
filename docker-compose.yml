@@ -25,6 +25,7 @@ services:
       - caddy
     volumes:
       - ./sandbox:/sandbox
+      - ./loaded:/app/server/loaded
     develop:
       watch:
         - path: ./server

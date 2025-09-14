@@ -27,7 +27,7 @@ export const deployments = new Elysia({ prefix: "/deployments" })
             controller.enqueue(encoder.encode(`${JSON.stringify(data)}\n`));
           };
           try {
-            const _result = await Deployments.deploy({
+            await Deployments.deploy({
               id: body.deploymentId,
               stage: "prod",
             });

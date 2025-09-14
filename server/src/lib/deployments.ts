@@ -1,5 +1,10 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import {
+  type InlineProgramArgs,
+  LocalWorkspace,
+} from "@pulumi/pulumi/automation";
 import { type } from "arktype";
+import type { DefineAppResult } from "enterprises/index";
 import { tables, useTransaction } from "../db";
 import { Env } from "../env";
 import { makeLogger } from "../logging";
@@ -26,7 +31,7 @@ export function clientLog(message: string): void {
 export namespace Deployments {
   const DeployArgs = type({
     id: "string",
-    "stage?": "string",
+    stage: type("string").default("production"),
   });
 
   const logger = makeLogger("deployments");
@@ -81,25 +86,41 @@ export namespace Deployments {
         throw new Error("Couldn't get enterprises.ts file", { cause: error });
       });
 
+    // copy the enterprises ts file into the local repo
+    const file = Bun.file(`${folderPath}/enterprises.ts`);
+    await Bun.write(`/app/server/loaded/${args.id}/enterprises.ts`, file);
+
     if (!enterprisesFileExists) {
       throw new Error("enterprises.ts file not found");
     }
 
     // try to run enterprises.ts
     logger.info("Running enterprises.ts");
-    const module = await import(`${folderPath}/enterprises.ts`).catch(
-      (error) => {
-        throw new Error("Couldn't import enterprises.ts", { cause: error });
-      },
-    );
+    const module = await import(
+      `/app/server/loaded/${args.id}/enterprises.ts`
+    ).catch((error) => {
+      throw new Error("Couldn't import enterprises.ts", { cause: error });
+    });
+
+    if (!module.app) {
+      throw new Error("enterprises.ts file is not a valid app");
+    }
 
     // attempt to run the default export function
-    const result = await module.default().catch((error: unknown) => {
-      throw new Error("Couldn't run enterprises.ts", { cause: error });
-    });
+    const app = (await module.app) as DefineAppResult;
+    logger.info({ app }, "Got app result");
+
+    const pulArgs: InlineProgramArgs = {
+      projectName: app.args.name,
+      program: async () => app.blueprint(app.args),
+      stackName: args.stage,
+    };
+    const stack = await LocalWorkspace.createOrSelectStack(pulArgs);
+    console.log(stack.info);
+    // const upRes = await stack.up({ onOutput: console.info });
 
     clientLog("Deployment record created");
 
-    return result;
+    return app;
   }
 }
