@@ -10,6 +10,7 @@ procs:
   just-server-logs:
     cmd: ["docker", "compose", "logs", "--follow", "server", "--no-log-prefix"]
     autorestart: true
+    stop: { send-keys: ["<C-c>"] }
   trust-certs:
     autostart: false
     cmd: ["caddy", "trust"]

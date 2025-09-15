@@ -11,6 +11,7 @@ services:
       context: .
       dockerfile: dockerfiles/server.Dockerfile
     tty: true
+    stdin_open: true
     env_file:
       - ./server/.env
     environment:

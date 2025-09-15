@@ -44,7 +44,7 @@ export namespace Storage {
     },
   );
 
-  const createBucket = async () => {
+  const createBucketIfnotExists = async (bucket: string) => {
     const minio = new Client({
       endPoint: "minio",
       port: 9000,
@@ -52,17 +52,22 @@ export namespace Storage {
       secretKey: Env.env.MINIO_SECRET_KEY,
       useSSL: false,
     });
-    const exists = await minio.bucketExists("repos");
+    const exists = await minio.bucketExists(bucket);
     if (!exists) {
       logger.info("creating bucket");
-      await minio.makeBucket("repos");
+      await minio.makeBucket(bucket);
     }
+  };
+
+  const createInitialBuckets = async () => {
+    createBucketIfnotExists("repos");
+    createBucketIfnotExists("pulumi-data");
   };
 
   export const init = async () => {
     logger.info("setting up S3 storage");
     try {
-      createBucket();
+      createInitialBuckets();
     } catch (_error) {
       logger.warn("S3 storage connection failed, but continuing");
     }

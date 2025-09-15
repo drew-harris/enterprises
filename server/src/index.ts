@@ -12,8 +12,6 @@ import { pino } from "./logging";
 import { deployments } from "./routes/deployments";
 import { storage } from "./routes/storage";
 
-
-
 const app = new Elysia()
   .onAfterHandle(({ response, set }) => {
     const result = response;
@@ -56,7 +54,11 @@ if (!import.meta.hot) {
     Caddy.ensureMinimumConfigForOperation(),
   ]);
 
-  Pulumi.install();
+  const result = await Pulumi.install();
+  if (result.isErr()) {
+    console.error("Failed to install Pulumi:", result.error);
+    process.exit(1);
+  }
 }
 
 Bun.serve({
